@@ -15,10 +15,21 @@ namespace Kukkii
     {
         static CookieJar()
         {
-            //initialize the cookie jar!
-            InMemory = new BasicCookieContainer();
-            Device = new PersistentCookieContainer();
+            Initialize();
         }
+
+        private static void Initialize()
+        {
+            //initialize the cookie jar!
+            if (!IsInitialized)
+            {
+                InMemory = new BasicCookieContainer();
+                Device = new PersistentCookieContainer(CookieRegistration.FileSystemProvider);
+                IsInitialized = true;
+            }
+        }
+
+        private static bool IsInitialized { get; set; }
 
         /// <summary>
         /// The name of the application using the CookieJar. This is for data persisting purposes.

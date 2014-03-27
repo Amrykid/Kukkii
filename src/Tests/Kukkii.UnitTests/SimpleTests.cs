@@ -6,7 +6,7 @@ namespace Kukkii.UnitTests
 {
     public class SimpleTests
     {
-        public SimpleTests()
+        static SimpleTests()
         {
             CookieJar.ApplicationName = "UnitTests";
         }

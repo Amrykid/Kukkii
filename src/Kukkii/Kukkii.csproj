@@ -57,7 +57,9 @@
     <Compile Include="Core\ICookieFileSystem.cs" />
     <Compile Include="External\ConcurrentQueue.cs" />
     <Compile Include="External\IProducerConsumerCollection.cs" />
+    <Compile Include="Mock\FakeFileSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CookieRegistration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
