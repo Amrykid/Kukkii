@@ -7,10 +7,10 @@ using Newtonsoft.Json;
 
 namespace Kukkii.Mock
 {
-    internal class FakeFileSystem: ICookieFileSystemProvider
+    internal class FakeFileSystemProvider: ICookieFileSystemProvider
     {
         private byte[] Data = null;
-        internal FakeFileSystem()
+        internal FakeFileSystemProvider()
         {
             var obj = Activator.CreateInstance(CookieRegistration.DefaultCacheType);
 
