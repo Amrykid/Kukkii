@@ -27,10 +27,11 @@ namespace Kukkii.Core
         internal static Task<bool> QueueWork(Action action)
         {
             var tcs = new TaskCompletionSource<bool>();
-            lock (workQueue)
-            {
-                workQueue.Enqueue(new Tuple<Action,TaskCompletionSource<bool>>(action, tcs));
-            }
+
+            workQueue.Enqueue(new Tuple<Action, TaskCompletionSource<bool>>(action, tcs));
+
+            if (workerThread.Status != TaskStatus.Running)
+                workerThread.Start();
 
             return tcs.Task;
         }

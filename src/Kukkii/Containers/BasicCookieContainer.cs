@@ -18,7 +18,7 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return PeekObjectAsync(key).ContinueWith<object>(task =>
+            return _InternalGetObject(key).ContinueWith<object>(task =>
                 {
                     //if the result was null, call the creation task.
                     //otherwise, remove the object from the cache
@@ -36,9 +36,9 @@ namespace Kukkii.Containers
                         {
                             Cache.Remove((KeyValuePair<string,CookieDataPacket<object>>)task.Result);
                         }
-                    }
 
-                    return null;
+                        return ((KeyValuePair<string, CookieDataPacket<object>>)task.Result).Value.Object;
+                    }
                 });
         }
 
@@ -51,15 +51,22 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
+            return _InternalGetObject(key).ContinueWith(x => ((KeyValuePair<string, CookieDataPacket<object>>)x.Result).Value.Object);
+        }
+
+        private Task<object> _InternalGetObject(string key)
+        {
             TaskCompletionSource<object> itemTask = new TaskCompletionSource<object>();
-            
+
             CookieMonster.QueueWork(() =>
             {
                 lock (Cache)
                 {
-                    itemTask.TrySetResult(Cache.Where(items => items.Key == key)
+                    var firstResult = Cache.Where(items => items.Key == key)
                         .OrderBy(x => x.Value.InsertionTime)
-                        .FirstOrDefault());
+                        .FirstOrDefault();
+
+                    itemTask.TrySetResult(firstResult);
                 }
             });
 
