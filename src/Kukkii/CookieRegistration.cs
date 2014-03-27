@@ -10,6 +10,12 @@ namespace Kukkii
 {
     public static class CookieRegistration
     {
+        private static void CheckForInitialization()
+        {
+            if (CookieJar.IsInitialized)
+                throw new InvalidOperationException(typeof(CookieRegistration).Name + " can't be modified after CookieJar initialization.");
+        }
+
         internal static Type DefaultCacheType { get { return typeof(List<CookieDataPacket<object>>); } }
 
         private static ICookieFileSystem fileSystemProvider = null;
@@ -17,7 +23,7 @@ namespace Kukkii
         public static ICookieFileSystem FileSystemProvider
         {
             get { return fileSystemProvider ?? new FakeFileSystem(); }
-            set { fileSystemProvider = value; }
+            set { CheckForInitialization(); fileSystemProvider = value; }
         }
     }
 }

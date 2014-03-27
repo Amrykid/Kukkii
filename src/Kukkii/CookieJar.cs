@@ -30,7 +30,7 @@ namespace Kukkii
             }
         }
 
-        private static bool IsInitialized { get; set; }
+        internal static bool IsInitialized { get; set; }
 
         /// <summary>
         /// The name of the application using the CookieJar. This is for data persisting purposes.

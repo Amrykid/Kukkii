@@ -71,6 +71,7 @@
     <Compile Include="SimpleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PersistenceTests.cs" />
+    <Compile Include="LogicTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Kukkii.FS.Windows\Kukkii.FS.Windows.csproj">
