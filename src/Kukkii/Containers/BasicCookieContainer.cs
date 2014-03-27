@@ -103,7 +103,7 @@ namespace Kukkii.Containers
         /// <param name="item">The object to store.</param>
         /// <param name="expirationTime">How long (in milliseconds) should the object be fresh. Use -1 for infinity.</param>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task<bool> InsertObjectAsync(string key, object item, int expirationTime = -1)
+        public virtual System.Threading.Tasks.Task InsertObjectAsync(string key, object item, int expirationTime = -1)
         {
             //check the parameters
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
@@ -132,7 +132,7 @@ namespace Kukkii.Containers
         /// Clears out the expired items in the container.
         /// </summary>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task<bool> CleanUpAsync()
+        public virtual System.Threading.Tasks.Task CleanUpAsync()
         {
             return CookieMonster.QueueWork(() =>
                 {
@@ -145,10 +145,10 @@ namespace Kukkii.Containers
                     }
 
                     return true;
-                }).ContinueWith<bool>(x => (bool)x.Result);
+                });
         }
 
-        public virtual System.Threading.Tasks.Task<bool> FlushAsync()
+        public virtual System.Threading.Tasks.Task FlushAsync()
         {
             throw new NotImplementedException();
         }
@@ -175,7 +175,7 @@ namespace Kukkii.Containers
         /// Deletes everything from the container.
         /// </summary>
         /// <returns></returns>
-        public virtual Task<bool> ClearContainerAsync()
+        public virtual Task ClearContainerAsync()
         {
             return CookieMonster.QueueWork(() =>
             {

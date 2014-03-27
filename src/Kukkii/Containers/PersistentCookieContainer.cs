@@ -55,35 +55,35 @@ namespace Kukkii.Containers
             throw new NotImplementedException();
         }
 
-        public override System.Threading.Tasks.Task<bool> InsertObjectAsync(string key, object item, int expirationTime = -1)
+        public override System.Threading.Tasks.Task InsertObjectAsync(string key, object item, int expirationTime = -1)
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
             return base.InsertObjectAsync(key, item, expirationTime);
         }
 
-        public override System.Threading.Tasks.Task<bool> CleanUpAsync()
+        public override System.Threading.Tasks.Task CleanUpAsync()
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
             return base.CleanUpAsync();
         }
 
-        public override System.Threading.Tasks.Task<bool> FlushAsync()
+        public override System.Threading.Tasks.Task FlushAsync()
         {
             //save cache to disk
 
             return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache)));
         }
 
-        protected Task<bool> WriteDataViaFileSystem(byte[] data)
+        protected Task WriteDataViaFileSystem(byte[] data)
         {
             return CookieMonster.QueueWork(() =>
             {
                 fileSystemProvider.SaveFile(CookieJar.ApplicationName, contextInfo, data);
 
                 return true;
-            }).ContinueWith<bool>(x => (bool)x.Result);
+            });
         }
     }
 }

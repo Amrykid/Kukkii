@@ -41,7 +41,7 @@ namespace Kukkii.Containers
             cacheLoaded = true;
         }
 
-        public override Task<bool> FlushAsync()
+        public override Task FlushAsync()
         {
             return WriteDataViaFileSystem(encryptionProvider.EncryptData(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache))));
         }

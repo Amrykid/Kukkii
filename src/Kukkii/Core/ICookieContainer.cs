@@ -15,10 +15,10 @@ namespace Kukkii.Core
         Task<T> GetObjectAsync(string key, Func<T> creationFunction = null);
         Task<IEnumerable<T>> GetObjectsAsync(string key);
         Task<T> PeekObjectAsync(string key);
-        Task<bool> InsertObjectAsync(string key, object item, int expirationTime = -1);
+        Task InsertObjectAsync(string key, object item, int expirationTime = -1);
 
-        Task<bool> CleanUpAsync();
-        Task<bool> ClearContainerAsync();
-        Task<bool> FlushAsync();
+        Task CleanUpAsync();
+        Task ClearContainerAsync();
+        Task FlushAsync();
     }
 }
