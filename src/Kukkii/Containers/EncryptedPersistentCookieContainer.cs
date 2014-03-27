@@ -10,11 +10,11 @@ namespace Kukkii.Containers
 {
     public class EncryptedPersistentCookieContainer: PersistentCookieContainer
     {
-        internal EncryptedPersistentCookieContainer(ICookieFileSystem filesystem): base(filesystem)
+        internal EncryptedPersistentCookieContainer(ICookieFileSystemProvider filesystem): base(filesystem)
         {
         }
 
-        protected override void InitializeCacheIfNotDoneAlready(Core.ICookieFileSystem filesystem)
+        protected override void InitializeCacheIfNotDoneAlready(Core.ICookieFileSystemProvider filesystem)
         {
             //base.InitializeCacheIfNotDoneAlready(filesystem);
         }
