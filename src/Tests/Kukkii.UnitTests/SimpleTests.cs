@@ -38,5 +38,23 @@ namespace Kukkii.UnitTests
             Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync("YourKey"));
             Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync("MyKey"));
         }
+
+        [Fact]
+        public async Task ClearsOutItemsAsync()
+        {
+            var yourString = "Some string";
+            await CookieJar.InMemory.InsertObjectAsync("YourKey", yourString, 5000);
+
+            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync("YourKey"));
+
+            await Task.Delay(5000);
+
+            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync("YourKey"));
+
+            await CookieJar.InMemory.CleanUpAsync();
+
+            //need to fix this.
+            Assert.Throws<NullReferenceException>(new Assert.ThrowsDelegateWithReturn(() => CookieJar.InMemory.PeekObjectAsync("YourKey").Result));
+        }
     }
 }
