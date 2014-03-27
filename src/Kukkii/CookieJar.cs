@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Kukkii
 {
+    /// <summary>
+    /// An object for storing objects as cookies!
+    /// </summary>
     public static class CookieJar
     {
         static CookieJar()
@@ -17,8 +20,18 @@ namespace Kukkii
             Device = new PersistentCookieContainer();
         }
 
+        /// <summary>
+        /// The name of the application using the CookieJar. This is for data persisting purposes.
+        /// </summary>
         public static string ApplicationName { get; set; }
+
+        /// <summary>
+        /// A cookie container that retains objects for as long as the application is running.
+        /// </summary>
         public static ICookieContainer InMemory { get; private set; }
+        /// <summary>
+        /// A cookie container that can save and load objects on physical media.
+        /// </summary>
         public static ICookieContainer Device { get; private set; }
     }
 }

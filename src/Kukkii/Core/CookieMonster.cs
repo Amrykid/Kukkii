@@ -11,6 +11,7 @@ namespace Kukkii.Core
 {
     /// <summary>
     /// A basic thread runner thingy.
+    /// It is responsible for all of the asynchronous operations running inside of Kukkii.
     /// </summary>
     internal static class CookieMonster
     {
