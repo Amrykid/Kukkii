@@ -6,10 +6,11 @@ using System.Text;
 
 namespace Kukkii.Containers
 {
-    public class PersistentCookieContainer: ICookieContainer
+    public class PersistentCookieContainer: BasicCookieContainer
     {
         internal PersistentCookieContainer()
         {
+            //load cache from disk
         }
 
         public System.Threading.Tasks.Task<object> GetObjectAsync(string key, Func<object> creationFunction = null)
@@ -39,6 +40,7 @@ namespace Kukkii.Containers
 
         public System.Threading.Tasks.Task<bool> FlushAsync()
         {
+            //save cache to disk
             throw new NotImplementedException();
         }
     }
