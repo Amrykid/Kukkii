@@ -54,11 +54,11 @@ namespace Kukkii.Core
 
                         try
                         {
-                            reportingTask.TrySetResult(job());
+                            reportingTask.SetResult(job());
                         }
                         catch (Exception ex)
                         {
-                            reportingTask.TrySetException(ex);
+                            reportingTask.SetException(ex);
                         }
                     }
                 }
