@@ -15,7 +15,7 @@ namespace Kukkii.Containers
         public BasicCookieContainer()
         {
             //Create an object to hold all of the items stored in the container.
-            Cache = (List<KeyValuePair<string, CookieDataPacket<object>>>)Activator.CreateInstance(CookieRegistration.DefaultCacheType);
+            Cache = (List<CookieDataPacket<object>>)Activator.CreateInstance(CookieRegistration.DefaultCacheType);
         }
 
         /// <summary>
@@ -45,10 +45,10 @@ namespace Kukkii.Containers
                         lock (Cache)
                         {
                             //remove the item from the cache
-                            Cache.Remove((KeyValuePair<string,CookieDataPacket<object>>)task.Result);
+                            Cache.Remove((CookieDataPacket<object>)task.Result);
                         }
 
-                        return ((KeyValuePair<string, CookieDataPacket<object>>)task.Result).Value.Object; //return the unwrapped item/object.
+                        return ((CookieDataPacket<object>)task.Result).Object; //return the unwrapped item/object.
                     }
                 });
         }
@@ -67,7 +67,7 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith(x => ((KeyValuePair<string, CookieDataPacket<object>>)x.Result).Value.Object);
+            return _InternalGetObject(key).ContinueWith(x => ((CookieDataPacket<object>)x.Result).Object);
         }
 
         /// <summary>
@@ -84,11 +84,13 @@ namespace Kukkii.Containers
                 lock (Cache)
                 {
                     var firstResult = Cache.Where(items => items.Key == key)
-                        .OrderBy(x => x.Value.InsertionTime)
+                        .OrderBy(x => x.InsertionTime)
                         .FirstOrDefault();
 
                     itemTask.TrySetResult(firstResult);
                 }
+
+                return true;
             });
 
             return itemTask.Task;
@@ -119,9 +121,11 @@ namespace Kukkii.Containers
                     lock (Cache) //locks the cache on this thread
                     {
                         //adds the item to the cache
-                        Cache.Add(new KeyValuePair<string, CookieDataPacket<object>>(key, cookie));
+                        Cache.Add(cookie);
                     }
-                });
+
+                    return true;
+                }).ContinueWith<bool>(x => (bool)x.Result);
         }
 
         /// <summary>
@@ -132,7 +136,7 @@ namespace Kukkii.Containers
         {
             return CookieMonster.QueueWork(() =>
                 {
-                    var expiredItems = Cache.Where(x => x.Value.IsExpired()).ToArray(); //Finds all of the expired items.
+                    var expiredItems = Cache.Where(x => x.IsExpired()).ToArray(); //Finds all of the expired items.
 
                     lock (Cache) //locks the cache
                     {
@@ -140,7 +144,8 @@ namespace Kukkii.Containers
                             Cache.Remove(item); //removes each expired item from the cache
                     }
 
-                });
+                    return true;
+                }).ContinueWith<bool>(x => (bool)x.Result);
         }
 
         public virtual System.Threading.Tasks.Task<bool> FlushAsync()
@@ -148,6 +153,17 @@ namespace Kukkii.Containers
             throw new NotImplementedException();
         }
 
-        protected IList<KeyValuePair<string, CookieDataPacket<object>>> Cache { get; set; }
+        protected IList<CookieDataPacket<object>> Cache { get; set; }
+
+        public virtual Task<bool> ContainsObjectAsync(string key)
+        {
+            return CookieMonster.QueueWork(() =>
+            {
+                lock (Cache) //locks the cache
+                {
+                    return Cache.Where(x => x.Key == key).Count() > 0;
+                }
+            }).ContinueWith<bool>(x => (bool)x.Result);
+        }
     }
 }

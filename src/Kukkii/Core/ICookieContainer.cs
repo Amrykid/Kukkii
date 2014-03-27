@@ -11,6 +11,7 @@ namespace Kukkii.Core
 
     public interface ICookieContainer<T>
     {
+        Task<bool> ContainsObjectAsync(string key);
         Task<T> GetObjectAsync(string key, Func<T> creationFunction = null);
         Task<IEnumerable<T>> GetObjectsAsync(string key);
         Task<T> PeekObjectAsync(string key);

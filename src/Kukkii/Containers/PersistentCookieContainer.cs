@@ -28,7 +28,7 @@ namespace Kukkii.Containers
 
             if (data != null)
             {
-                Cache = JsonConvert.DeserializeObject<List<KeyValuePair<string, CookieDataPacket<object>>>>(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length));
+                Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length));
             }
 
             cacheLoaded = true;
@@ -69,7 +69,7 @@ namespace Kukkii.Containers
             return base.CleanUpAsync();
         }
 
-        public override virtual System.Threading.Tasks.Task<bool> FlushAsync()
+        public override System.Threading.Tasks.Task<bool> FlushAsync()
         {
             //save cache to disk
 
@@ -81,7 +81,9 @@ namespace Kukkii.Containers
             return CookieMonster.QueueWork(() =>
             {
                 fileSystemProvider.SaveFile(CookieJar.ApplicationName, contextInfo, data);
-            });
+
+                return true;
+            }).ContinueWith<bool>(x => (bool)x.Result);
         }
     }
 }

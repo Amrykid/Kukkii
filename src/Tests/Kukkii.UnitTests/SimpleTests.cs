@@ -54,7 +54,7 @@ namespace Kukkii.UnitTests
             await CookieJar.InMemory.CleanUpAsync();
 
             //need to fix this.
-            Assert.Throws<NullReferenceException>(new Assert.ThrowsDelegateWithReturn(() => CookieJar.InMemory.PeekObjectAsync("YourKey").Result));
+            Assert.False(await CookieJar.InMemory.ContainsObjectAsync("YourKey"));
         }
     }
 }

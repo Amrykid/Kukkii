@@ -15,21 +15,21 @@ namespace Kukkii.Core
     /// </summary>
     internal static class CookieMonster
     {
-        private static ConcurrentQueue<Tuple<Action, TaskCompletionSource<bool>>> workQueue = null;
+        private static ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>> workQueue = null;
         private static Task workerThread = null;
         private static ManualResetEvent threadResetEvent = null;
         static CookieMonster()
         {
-            workQueue = new ConcurrentQueue<Tuple<Action, TaskCompletionSource<bool>>>();
+            workQueue = new ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>>();
             workerThread = new Task(RunQueue);
             threadResetEvent = new ManualResetEvent(false);
         }
 
-        internal static Task<bool> QueueWork(Action action)
+        internal static Task<object> QueueWork(Func<object> action)
         {
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<object>();
 
-            workQueue.Enqueue(new Tuple<Action, TaskCompletionSource<bool>>(action, tcs));
+            workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
 
             if (workerThread.Status != TaskStatus.Running)
                 workerThread.Start();
@@ -45,17 +45,16 @@ namespace Kukkii.Core
             {
                 while (workQueue.Count > 0)
                 {
-                    Tuple<Action, TaskCompletionSource<bool>> information = null;
+                    Tuple<Func<object>, TaskCompletionSource<object>> information = null;
 
                     if (workQueue.TryDequeue(out information))
                     {
-                        Action job = information.Item1;
-                        TaskCompletionSource<bool> reportingTask = information.Item2;
+                        Func<object> job = information.Item1;
+                        TaskCompletionSource<object> reportingTask = information.Item2;
 
                         try
                         {
-                            job();
-                            reportingTask.TrySetResult(true);
+                            reportingTask.TrySetResult(job());
                         }
                         catch (Exception ex)
                         {

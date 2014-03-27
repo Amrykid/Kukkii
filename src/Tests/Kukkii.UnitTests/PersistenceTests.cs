@@ -28,7 +28,12 @@ namespace Kukkii.UnitTests
                 Assert.IsType<Exception>(ex);
             }
 
-            CleanUp();
+            try
+            {
+                //not apart of the test
+                CleanUp();
+            }
+            catch (Exception) { }
         }
 
         private void CleanUp()

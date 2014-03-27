@@ -10,7 +10,7 @@ namespace Kukkii
 {
     public static class CookieRegistration
     {
-        internal static Type DefaultCacheType { get { return typeof(List<KeyValuePair<string, CookieDataPacket<object>>>); } }
+        internal static Type DefaultCacheType { get { return typeof(List<CookieDataPacket<object>>); } }
 
         private static ICookieFileSystem fileSystemProvider = null;
 
