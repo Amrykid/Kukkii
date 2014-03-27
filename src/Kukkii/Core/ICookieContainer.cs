@@ -18,6 +18,7 @@ namespace Kukkii.Core
         Task<bool> InsertObjectAsync(string key, object item, int expirationTime = -1);
 
         Task<bool> CleanUpAsync();
+        Task<bool> ClearContainerAsync();
         Task<bool> FlushAsync();
     }
 }

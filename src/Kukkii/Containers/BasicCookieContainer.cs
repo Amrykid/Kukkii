@@ -19,7 +19,7 @@ namespace Kukkii.Containers
         }
 
         /// <summary>
-        /// Grabs an object from the cache using the key provided. The object is removed from the cache. If the object does not exists, the creation function is called to provide a replacement object.
+        /// Grabs an object from the container using the key provided. The object is removed from the container. If the object does not exists, the creation function is called to provide a replacement object.
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
         /// <param name="creationFunction">The function to call to provide a replacement item should the key/item not exist.</param>
@@ -59,7 +59,7 @@ namespace Kukkii.Containers
         }
 
         /// <summary>
-        /// Returns the object stored using the provided key and not remove it from the cache.
+        /// Returns the object stored using the provided key and not remove it from the container.
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
         /// <returns></returns>
@@ -71,7 +71,7 @@ namespace Kukkii.Containers
         }
 
         /// <summary>
-        /// An internal function for getting an object from the cache.
+        /// An internal function for getting an object from the container.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -97,7 +97,7 @@ namespace Kukkii.Containers
         }
 
         /// <summary>
-        /// Inserts an object into the cache with a key and optional expiration time.
+        /// Inserts an object into the container with a key and optional expiration time.
         /// </summary>
         /// <param name="key">The key used to store the object.</param>
         /// <param name="item">The object to store.</param>
@@ -129,7 +129,7 @@ namespace Kukkii.Containers
         }
 
         /// <summary>
-        /// Clears out the expired items in the cache.
+        /// Clears out the expired items in the container.
         /// </summary>
         /// <returns></returns>
         public virtual System.Threading.Tasks.Task<bool> CleanUpAsync()
@@ -156,7 +156,7 @@ namespace Kukkii.Containers
         protected IList<CookieDataPacket<object>> Cache { get; set; }
 
         /// <summary>
-        /// Checks the cache for an object with the specified key.
+        /// Checks the container for an object with the specified key.
         /// </summary>
         /// <param name="key">The key to check against.</param>
         /// <returns></returns>
@@ -168,6 +168,23 @@ namespace Kukkii.Containers
                 {
                     return Cache.Where(x => x.Key == key).Count() > 0;
                 }
+            }).ContinueWith<bool>(x => (bool)x.Result);
+        }
+
+        /// <summary>
+        /// Deletes everything from the container.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Task<bool> ClearContainerAsync()
+        {
+            return CookieMonster.QueueWork(() =>
+            {
+                lock (Cache) //locks the cache
+                {
+                    Cache.Clear();
+                }
+
+                return true;
             }).ContinueWith<bool>(x => (bool)x.Result);
         }
     }
