@@ -9,4 +9,11 @@ I do recommend you check out Akavache because it has more advanced features comp
 
 ### How does it work?
 
-There are two classes you will deal with directly. They are ```CookieRegistration``` and ```CookieJar``` (like Akavache's ```BlobCache```).
+There are two classes you will deal with directly. They are ```CookieRegistration``` and ```CookieJar``` (like Akavache's ```BlobCache```). 
+You use ```CookieRegistration``` to setup the ```CookieJar``` singleton. If you try to change ```CookieRegistration``` after the ```CookieJar``` has been initialized,
+ you will recieve an ```InvalidOperationException```.
+
+```CookieJar``` has two to three different ```ICookieContainer``` instances. 
+- The first is returned by a property called ```InMemory```. ```InMemory``` returns an object cache (```BasicCookieContainer```) that persists as long as the application is running. It is wiped when the application exits.
+- The second is returned by a property called ```Device```. ```Device``` returns an object cache (```PersistentCookieContainer``` which inherits from ```BasicCookieContainer```) that can load and save it's contents to the device's storage.
+- The last is returned by a property called ```Secure```. ```Secure``` returns an object cache (```EncryptedPersistentCookieContainer``` which inherits from ```PersistentCookieContainer```) that can load and save its contents to the device's storage. All content is encrypted using the system's data protection APIs.
