@@ -15,7 +15,7 @@ namespace Kukkii.Containers
         public BasicCookieContainer()
         {
             //Create an object to hold all of the items stored in the container.
-            Cache = (dynamic)Activator.CreateInstance(CookieRegistration.DefaultCacheType);
+            Cache = (List<KeyValuePair<string, CookieDataPacket<object>>>)Activator.CreateInstance(CookieRegistration.DefaultCacheType);
         }
 
         /// <summary>

@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kukkii", "src\Kukkii\Kukkii
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kukkii.UnitTests", "src\Tests\Kukkii.UnitTests\Kukkii.UnitTests.csproj", "{366AB291-339A-4B91-A029-BC89AA1717C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kukkii.FS.Windows", "src\Kukkii.FS.Windows\Kukkii.FS.Windows.csproj", "{2EAF4C85-5EDD-424A-B398-2B49B02B926A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{366AB291-339A-4B91-A029-BC89AA1717C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{366AB291-339A-4B91-A029-BC89AA1717C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366AB291-339A-4B91-A029-BC89AA1717C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

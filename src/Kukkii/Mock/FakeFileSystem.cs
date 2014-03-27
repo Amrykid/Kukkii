@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Kukkii.Core;
+using Newtonsoft.Json;
 
 namespace Kukkii.Mock
 {
     internal class FakeFileSystem: ICookieFileSystem
     {
-        public object ReadFile(string applicationName, string contextInfo)
+        public byte[] ReadFile(string applicationName, string contextInfo)
         {
-            return Activator.CreateInstance(CookieRegistration.DefaultCacheType);
+            var obj = Activator.CreateInstance(CookieRegistration.DefaultCacheType);
+
+            return System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
         }
 
-        public void SaveFile(string applicationName, string contextInfo, object data)
+        public void SaveFile(string applicationName, string contextInfo, byte[] data)
         {
             return;
         }
