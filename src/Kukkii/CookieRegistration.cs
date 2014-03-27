@@ -18,9 +18,9 @@ namespace Kukkii
 
         internal static Type DefaultCacheType { get { return typeof(List<CookieDataPacket<object>>); } }
 
-        private static ICookieFileSystem fileSystemProvider = null;
+        private static ICookieFileSystemProvider fileSystemProvider = null;
 
-        public static ICookieFileSystem FileSystemProvider
+        public static ICookieFileSystemProvider FileSystemProvider
         {
             get { return fileSystemProvider ?? new FakeFileSystem(); }
             set { CheckForInitialization(); fileSystemProvider = value; }

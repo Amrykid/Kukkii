@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Kukkii.Mock
 {
-    internal class FakeFileSystem: ICookieFileSystem
+    internal class FakeFileSystem: ICookieFileSystemProvider
     {
         public byte[] ReadFile(string applicationName, string contextInfo)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kukkii.Core
 {
-    public interface ICookieFileSystem
+    public interface ICookieFileSystemProvider
     {
         byte[] ReadFile(string applicationName, string contextInfo);
         void SaveFile(string applicationName, string contextInfo, byte[] data);

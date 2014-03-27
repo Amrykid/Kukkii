@@ -8,7 +8,7 @@ using Kukkii.Core;
 
 namespace Kukkii.FS.Windows
 {
-    public class WindowsFileSystemProvider : ICookieFileSystem
+    public class WindowsFileSystemProvider : ICookieFileSystemProvider
     {
         public byte[] ReadFile(string applicationName, string contextInfo)
         {
