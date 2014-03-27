@@ -25,6 +25,7 @@ namespace Kukkii
             {
                 InMemory = new BasicCookieContainer();
                 Device = new PersistentCookieContainer(CookieRegistration.FileSystemProvider);
+                //Secure = new EncryptedPersistentCookieContainer(CookieRegistration.FileSystemProvider);
                 IsInitialized = true;
             }
         }
@@ -44,5 +45,6 @@ namespace Kukkii
         /// A cookie container that can save and load objects on physical media.
         /// </summary>
         public static ICookieContainer Device { get; private set; }
+        //public static ICookieContainer Secure { get; private set; }
     }
 }
