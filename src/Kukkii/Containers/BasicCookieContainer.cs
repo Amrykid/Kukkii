@@ -155,6 +155,11 @@ namespace Kukkii.Containers
 
         protected IList<CookieDataPacket<object>> Cache { get; set; }
 
+        /// <summary>
+        /// Checks the cache for an object with the specified key.
+        /// </summary>
+        /// <param name="key">The key to check against.</param>
+        /// <returns></returns>
         public virtual Task<bool> ContainsObjectAsync(string key)
         {
             return CookieMonster.QueueWork(() =>
