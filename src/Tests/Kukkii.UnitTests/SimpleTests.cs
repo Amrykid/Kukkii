@@ -21,6 +21,8 @@ namespace Kukkii.UnitTests
 
             Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync("YourKey"));
             Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync("MyKey"));
+
+            Utilities.ForceResetCookieJar();
         }
 
         [Fact]
@@ -37,6 +39,8 @@ namespace Kukkii.UnitTests
 
             Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync("YourKey"));
             Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync("MyKey"));
+
+            Utilities.ForceResetCookieJar();
         }
 
         [Fact]
@@ -53,8 +57,9 @@ namespace Kukkii.UnitTests
 
             await CookieJar.InMemory.CleanUpAsync();
 
-            //need to fix this.
             Assert.False(await CookieJar.InMemory.ContainsObjectAsync("YourKey"));
+
+            Utilities.ForceResetCookieJar();
         }
     }
 }

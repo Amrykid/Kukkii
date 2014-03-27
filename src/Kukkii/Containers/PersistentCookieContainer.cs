@@ -10,15 +10,15 @@ namespace Kukkii.Containers
 {
     public class PersistentCookieContainer : BasicCookieContainer
     {
-        private ICookieFileSystem fileSystemProvider = null;
+        private ICookieFileSystemProvider fileSystemProvider = null;
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
-        internal PersistentCookieContainer(ICookieFileSystem filesystem)
+        internal PersistentCookieContainer(ICookieFileSystemProvider filesystem)
         {
             fileSystemProvider = filesystem;
         }
 
-        protected virtual void InitializeCacheIfNotDoneAlready(ICookieFileSystem filesystem)
+        protected virtual void InitializeCacheIfNotDoneAlready(ICookieFileSystemProvider filesystem)
         {
             if (cacheLoaded) return;
 
@@ -38,7 +38,7 @@ namespace Kukkii.Containers
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
-            throw new NotImplementedException();
+            return base.GetObjectAsync(key, creationFunction);
         }
 
         public override System.Threading.Tasks.Task<IEnumerable<object>> GetObjectsAsync(string key)

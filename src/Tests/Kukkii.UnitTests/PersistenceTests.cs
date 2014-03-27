@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using Kukkii.Containers;
 using Kukkii.FS.Windows;
 using Xunit;
 
@@ -10,8 +12,14 @@ namespace Kukkii.UnitTests
     {
         static PersistenceTests()
         {
-            CookieRegistration.FileSystemProvider = new WindowsFileSystemProvider();
-            CookieJar.ApplicationName = "Kukkii-Tests";
+            try
+            {
+                CookieRegistration.FileSystemProvider = new WindowsFileSystemProvider();
+                CookieJar.ApplicationName = "Kukkii-Tests";
+            }
+            catch (Exception)
+            {
+            }
         }
 
         [Fact]
@@ -34,6 +42,26 @@ namespace Kukkii.UnitTests
                 CleanUp();
             }
             catch (Exception) { }
+
+            Utilities.ForceResetCookieJar();
+        }
+
+        [Fact]
+        public async Task SavesAndLoadsSimpleDataOnDiskAsync()
+        {
+            CookieJar.ApplicationName = "Kukkii-Tests";
+
+            var date = DateTime.Now;
+
+            await CookieJar.Device.InsertObjectAsync("SomeObject", date);
+            await CookieJar.Device.FlushAsync();
+            await CookieJar.Device.ClearContainerAsync();
+
+            Utilities.ForcePersistentCacheReload();
+
+            Assert.Equal(date, await CookieJar.Device.GetObjectAsync("SomeObject"));
+
+            Utilities.ForceResetCookieJar();
         }
 
         private void CleanUp()
