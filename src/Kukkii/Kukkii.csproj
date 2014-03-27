@@ -49,6 +49,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Containers\BasicCookieContainer.cs" />
+    <Compile Include="Containers\EncryptedPersistentCookieContainer.cs" />
     <Compile Include="Containers\PersistentCookieContainer.cs" />
     <Compile Include="CookieJar.cs" />
     <Compile Include="Core\CookieDataPacket.cs" />

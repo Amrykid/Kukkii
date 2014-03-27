@@ -11,14 +11,14 @@ namespace Kukkii.Containers
     public class PersistentCookieContainer : BasicCookieContainer
     {
         private ICookieFileSystem fileSystemProvider = null;
-        private bool cacheLoaded = false;
+        protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         internal PersistentCookieContainer(ICookieFileSystem filesystem)
         {
             fileSystemProvider = filesystem;
         }
 
-        private void InitializeCacheIfNotDoneAlready(ICookieFileSystem filesystem)
+        protected virtual void InitializeCacheIfNotDoneAlready(ICookieFileSystem filesystem)
         {
             if (cacheLoaded) return;
 
@@ -69,14 +69,19 @@ namespace Kukkii.Containers
             return base.CleanUpAsync();
         }
 
-        public override System.Threading.Tasks.Task<bool> FlushAsync()
+        public override virtual System.Threading.Tasks.Task<bool> FlushAsync()
         {
             //save cache to disk
 
+            return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache)));
+        }
+
+        protected Task<bool> WriteDataViaFileSystem(byte[] data)
+        {
             return CookieMonster.QueueWork(() =>
-                {
-                    fileSystemProvider.SaveFile(CookieJar.ApplicationName, contextInfo, System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache)));
-                });
+            {
+                fileSystemProvider.SaveFile(CookieJar.ApplicationName, contextInfo, data);
+            });
         }
     }
 }
