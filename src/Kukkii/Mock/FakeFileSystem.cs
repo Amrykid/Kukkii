@@ -9,15 +9,22 @@ namespace Kukkii.Mock
 {
     internal class FakeFileSystem: ICookieFileSystemProvider
     {
-        public byte[] ReadFile(string applicationName, string contextInfo)
+        private byte[] Data = null;
+        internal FakeFileSystem()
         {
             var obj = Activator.CreateInstance(CookieRegistration.DefaultCacheType);
 
-            return System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
+            Data = System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
+        }
+
+        public byte[] ReadFile(string applicationName, string contextInfo)
+        {
+            return Data;
         }
 
         public void SaveFile(string applicationName, string contextInfo, byte[] data)
         {
+            Data = data;
             return;
         }
     }
