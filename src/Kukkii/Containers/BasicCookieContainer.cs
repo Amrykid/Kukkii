@@ -75,7 +75,7 @@ namespace Kukkii.Containers
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        private Task<object> _InternalGetObject(string key)
+        protected Task<object> _InternalGetObject(string key)
         {
             TaskCompletionSource<object> itemTask = new TaskCompletionSource<object>();
 
@@ -109,23 +109,34 @@ namespace Kukkii.Containers
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
             if (expirationTime < -1) throw new ArgumentOutOfRangeException("expirationTime");
 
+            CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, expirationTime);
+
+            return AddCookiePacketToCache(cookie);
+        }
+
+        protected Task AddCookiePacketToCache(CookieDataPacket<object> cookie)
+        {
             return CookieMonster.QueueWork(() =>
+            {
+                lock (Cache) //locks the cache on this thread
                 {
-                    //creates a cookie wrapper for the object
-                    CookieDataPacket<object> cookie = new CookieDataPacket<object>();
-                    cookie.Key = key;
-                    cookie.RequestedExpirationTime = expirationTime;
-                    cookie.Object = item;
-                    cookie.InsertionTime = DateTime.Now;
+                    //adds the item to the cache
+                    Cache.Add(cookie);
+                }
 
-                    lock (Cache) //locks the cache on this thread
-                    {
-                        //adds the item to the cache
-                        Cache.Add(cookie);
-                    }
+                return true;
+            }).ContinueWith<bool>(x => (bool)x.Result);
+        }
 
-                    return true;
-                }).ContinueWith<bool>(x => (bool)x.Result);
+        protected CookieDataPacket<object> CreateCookiePacket<T>(string key, T item, int expirationTime)
+        {
+            //creates a cookie wrapper for the object
+            CookieDataPacket<object> cookie = new CookieDataPacket<object>();
+            cookie.Key = key;
+            cookie.RequestedExpirationTime = expirationTime;
+            cookie.Object = item;
+            cookie.InsertionTime = DateTime.Now;
+            return cookie;
         }
 
         /// <summary>
