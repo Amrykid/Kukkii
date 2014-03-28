@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{64D4CD
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kukkii.Security.DPAPI", "src\Kukkii.Security.DPAPI\Kukkii.Security.DPAPI.csproj", "{CC3C50F3-6F0A-4E6D-8C96-70F80076CE6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EAF4C85-5EDD-424A-B398-2B49B02B926A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3C50F3-6F0A-4E6D-8C96-70F80076CE6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3C50F3-6F0A-4E6D-8C96-70F80076CE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3C50F3-6F0A-4E6D-8C96-70F80076CE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3C50F3-6F0A-4E6D-8C96-70F80076CE6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
