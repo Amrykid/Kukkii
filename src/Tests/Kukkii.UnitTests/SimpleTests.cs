@@ -38,14 +38,14 @@ namespace Kukkii.UnitTests
         }
 
         [Fact]
-        public async Task ClearsOutItemsAsync()
+        public async Task ClearsOutExpiredItemsAsync()
         {
             var yourString = "Some string";
-            await CookieJar.InMemory.InsertObjectAsync("YourKey", yourString, 5000);
+            await CookieJar.InMemory.InsertObjectAsync("YourKey", yourString, 2000);
 
             Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync<string>("YourKey"));
 
-            await Task.Delay(5000);
+            await Task.Delay(3000);
 
             Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync<string>("YourKey"));
 
