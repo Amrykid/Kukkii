@@ -59,7 +59,7 @@ namespace Kukkii.UnitTests
 
             Utilities.ForcePersistentCacheReload();
 
-            Assert.Equal(date, await CookieJar.Device.GetObjectAsync("SomeObject"));
+            Assert.Equal(date, await CookieJar.Device.GetObjectAsync<DateTime>("SomeObject"));
 
             Utilities.ForceResetCookieJar();
         }

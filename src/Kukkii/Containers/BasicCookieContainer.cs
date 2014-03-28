@@ -24,11 +24,11 @@ namespace Kukkii.Containers
         /// <param name="key">The key used to locate the object.</param>
         /// <param name="creationFunction">The function to call to provide a replacement item should the key/item not exist.</param>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task<object> GetObjectAsync(string key, Func<object> creationFunction = null)
+        public virtual System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith<object>(task =>
+            return _InternalGetObject(key).ContinueWith<T>(task =>
                 {
                     //if the result was null, call the creation task.
                     //otherwise, remove the object from the cache
@@ -38,7 +38,7 @@ namespace Kukkii.Containers
                         if (creationFunction != null)
                             return creationFunction(); //call the creation function to get a replacement item.
                         else
-                            return null; //nothing else we can do.
+                            return default(T); //nothing else we can do.
                     }
                     else
                     {
@@ -48,12 +48,12 @@ namespace Kukkii.Containers
                             Cache.Remove((CookieDataPacket<object>)task.Result);
                         }
 
-                        return ((CookieDataPacket<object>)task.Result).Object; //return the unwrapped item/object.
+                        return (T)((CookieDataPacket<object>)task.Result).Object; //return the unwrapped item/object.
                     }
                 });
         }
 
-        public virtual System.Threading.Tasks.Task<IEnumerable<object>> GetObjectsAsync(string key)
+        public virtual System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
             throw new NotImplementedException();
         }
@@ -63,11 +63,11 @@ namespace Kukkii.Containers
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task<object> PeekObjectAsync(string key)
+        public virtual System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith(x => ((CookieDataPacket<object>)x.Result).Object);
+            return _InternalGetObject(key).ContinueWith(x => (T)((CookieDataPacket<object>)x.Result).Object);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Kukkii.Containers
         /// <param name="item">The object to store.</param>
         /// <param name="expirationTime">How long (in milliseconds) should the object be fresh. Use -1 for infinity.</param>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task InsertObjectAsync(string key, object item, int expirationTime = -1)
+        public virtual System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
             //check the parameters
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");

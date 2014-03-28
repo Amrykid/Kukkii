@@ -16,8 +16,8 @@ namespace Kukkii.UnitTests
             await CookieJar.InMemory.InsertObjectAsync("YourKey", 6);
             await CookieJar.InMemory.InsertObjectAsync("MyKey", 25);
 
-            Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync("YourKey"));
-            Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync("MyKey"));
+            Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync<int>("YourKey"));
+            Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync<int>("MyKey"));
 
             Utilities.ForceResetCookieJar();
         }
@@ -28,11 +28,11 @@ namespace Kukkii.UnitTests
             await CookieJar.InMemory.InsertObjectAsync("YourKey", 6);
             await CookieJar.InMemory.InsertObjectAsync("MyKey", 25);
 
-            Assert.Equal(6, await CookieJar.InMemory.PeekObjectAsync("YourKey"));
-            Assert.Equal(25, await CookieJar.InMemory.PeekObjectAsync("MyKey"));
+            Assert.Equal(6, await CookieJar.InMemory.PeekObjectAsync<int>("YourKey"));
+            Assert.Equal(25, await CookieJar.InMemory.PeekObjectAsync<int>("MyKey"));
 
-            Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync("YourKey"));
-            Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync("MyKey"));
+            Assert.Equal(6, await CookieJar.InMemory.GetObjectAsync<int>("YourKey"));
+            Assert.Equal(25, await CookieJar.InMemory.GetObjectAsync<int>("MyKey"));
 
             Utilities.ForceResetCookieJar();
         }
@@ -43,11 +43,11 @@ namespace Kukkii.UnitTests
             var yourString = "Some string";
             await CookieJar.InMemory.InsertObjectAsync("YourKey", yourString, 5000);
 
-            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync("YourKey"));
+            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync<string>("YourKey"));
 
             await Task.Delay(5000);
 
-            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync("YourKey"));
+            Assert.Equal(yourString, await CookieJar.InMemory.PeekObjectAsync<string>("YourKey"));
 
             await CookieJar.InMemory.CleanUpAsync();
 

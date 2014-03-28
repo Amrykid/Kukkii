@@ -34,28 +34,28 @@ namespace Kukkii.Containers
             cacheLoaded = true;
         }
 
-        public override System.Threading.Tasks.Task<object> GetObjectAsync(string key, Func<object> creationFunction = null)
+        public override System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
-            return base.GetObjectAsync(key, creationFunction);
+            return base.GetObjectAsync<T>(key, creationFunction);
         }
 
-        public override System.Threading.Tasks.Task<IEnumerable<object>> GetObjectsAsync(string key)
-        {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
-
-            throw new NotImplementedException();
-        }
-
-        public override System.Threading.Tasks.Task<object> PeekObjectAsync(string key)
+        public override System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
             throw new NotImplementedException();
         }
 
-        public override System.Threading.Tasks.Task InsertObjectAsync(string key, object item, int expirationTime = -1)
+        public override System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
+        {
+            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+
+            throw new NotImplementedException();
+        }
+
+        public override System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
             InitializeCacheIfNotDoneAlready(fileSystemProvider);
 
