@@ -68,7 +68,10 @@ namespace Kukkii.Containers
 
             return base.CleanUpAsync();
         }
-
+        /// <summary>
+        /// Saves the current cache to disk.
+        /// </summary>
+        /// <returns></returns>
         public override System.Threading.Tasks.Task FlushAsync()
         {
             //save cache to disk
