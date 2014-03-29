@@ -41,7 +41,7 @@ Once you have the correct reference, you need to initialize the correct driver f
 
 After that, you should be able to utilize ```CookieJar.Device``` to have a persisting cache.
 
-**NOTE: Kukkii never ***saves*** data automatically. You must call the ```FlushAsync``` method if you want to save the current state of the cache/container.**
+**NOTE: Kukkii never *saves* data automatically. You must call the ```FlushAsync``` method if you want to save the current state of the cache/container.**
 
 ### Testing
 If you find any bugs, please let me know on the issue tracker!
