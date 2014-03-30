@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Kukkii.Core;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Kukkii.Mock
 {
@@ -17,15 +18,15 @@ namespace Kukkii.Mock
             Data = System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
         }
 
-        public byte[] ReadFile(string applicationName, string contextInfo)
+        public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
         {
-            return Data;
+            return Task.FromResult(Data);
         }
 
-        public void SaveFile(string applicationName, string contextInfo, byte[] data)
+        public System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
         {
             Data = data;
-            return;
+            return Task.Delay(0);
         }
     }
 }

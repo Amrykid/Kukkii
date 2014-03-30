@@ -87,13 +87,13 @@ namespace Kukkii.Containers
             return JsonConvert.DeserializeObject<T>(System.Text.UTF8Encoding.UTF8.GetString(decryptedBytes, 0, decryptedBytes.Length));
         }
 
-        protected override void InitializeCacheIfNotDoneAlready(Core.ICookieFileSystemProvider filesystem)
+        protected override async Task InitializeCacheIfNotDoneAlreadyAsync(Core.ICookieFileSystemProvider filesystem)
         {
             if (cacheLoaded) return;
 
             //load cache from disk
 
-            var data = filesystem.ReadFile(CookieJar.ApplicationName, contextInfo);
+            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
 
             if (data != null)
             {

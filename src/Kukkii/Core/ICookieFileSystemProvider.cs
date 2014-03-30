@@ -8,7 +8,10 @@ namespace Kukkii.Core
 {
     public interface ICookieFileSystemProvider
     {
-        byte[] ReadFile(string applicationName, string contextInfo);
-        void SaveFile(string applicationName, string contextInfo, byte[] data);
+        //byte[] ReadFile(string applicationName, string contextInfo);
+        //void SaveFile(string applicationName, string contextInfo, byte[] data);
+
+        Task<byte[]> ReadFileAsync(string applicationName, string contextInfo);
+        Task SaveFileAsync(string applicationName, string contextInfo, byte[] data);
     }
 }

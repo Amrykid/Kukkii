@@ -18,13 +18,13 @@ namespace Kukkii.Containers
             fileSystemProvider = filesystem;
         }
 
-        protected virtual void InitializeCacheIfNotDoneAlready(ICookieFileSystemProvider filesystem)
+        protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
         {
             if (cacheLoaded) return;
 
             //load cache from disk
 
-            var data = filesystem.ReadFile(CookieJar.ApplicationName, contextInfo);
+            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
 
             if (data != null)
             {
@@ -34,39 +34,39 @@ namespace Kukkii.Containers
             cacheLoaded = true;
         }
 
-        public override System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
+        public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            return base.GetObjectAsync<T>(key, creationFunction);
+            return await base.GetObjectAsync<T>(key, creationFunction);
         }
 
-        public override System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
+        public override async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             throw new NotImplementedException();
         }
 
-        public override System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
+        public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
         {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             throw new NotImplementedException();
         }
 
-        public override System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
+        public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            return base.InsertObjectAsync(key, item, expirationTime);
+            await base.InsertObjectAsync(key, item, expirationTime);
         }
 
-        public override System.Threading.Tasks.Task CleanUpAsync()
+        public override async System.Threading.Tasks.Task CleanUpAsync()
         {
-            InitializeCacheIfNotDoneAlready(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            return base.CleanUpAsync();
+            await base.CleanUpAsync();
         }
         /// <summary>
         /// Saves the current cache to disk.
@@ -83,7 +83,7 @@ namespace Kukkii.Containers
         {
             return CookieMonster.QueueWork(() =>
             {
-                fileSystemProvider.SaveFile(CookieJar.ApplicationName, contextInfo, data);
+                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data).Wait();
 
                 return true;
             });

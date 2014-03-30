@@ -10,33 +10,40 @@ namespace Kukkii.FS.Windows
 {
     public class WindowsFileSystemProvider : ICookieFileSystemProvider
     {
-        public byte[] ReadFile(string applicationName, string contextInfo)
-        {
-            var directory = CreateAndReturnDataDirectory(applicationName);
-
-            try
-            {
-                return System.IO.File.ReadAllBytes(directory + contextInfo + ".json");
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public void SaveFile(string applicationName, string contextInfo, byte[] data)
-        {
-            var directory = CreateAndReturnDataDirectory(applicationName);
-
-            System.IO.File.WriteAllBytes(directory + contextInfo + ".json", data);
-        }
-
         private static string CreateAndReturnDataDirectory(string applicationName)
         {
             var directory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + applicationName + "\\";
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             return directory;
+        }
+
+
+        public Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
+        {
+            return Task.Run<byte[]>(() =>
+                {
+                    var directory = CreateAndReturnDataDirectory(applicationName);
+
+                    try
+                    {
+                        return System.IO.File.ReadAllBytes(directory + contextInfo + ".json");
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                });
+        }
+
+        public Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
+        {
+            return Task.Run(() =>
+                {
+                    var directory = CreateAndReturnDataDirectory(applicationName);
+
+                    System.IO.File.WriteAllBytes(directory + contextInfo + ".json", data);
+                });
         }
     }
 }
