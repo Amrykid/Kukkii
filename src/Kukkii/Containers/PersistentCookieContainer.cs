@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Kukkii.Containers
 {
@@ -13,9 +14,17 @@ namespace Kukkii.Containers
         private ICookieFileSystemProvider fileSystemProvider = null;
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
+        private JsonSerializer serializer = null;
         internal PersistentCookieContainer(ICookieFileSystemProvider filesystem)
         {
             fileSystemProvider = filesystem;
+            serializer = new JsonSerializer();
+            serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+            serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
+            serializer.MaxDepth = 2048;
+            serializer.TypeNameHandling = TypeNameHandling.All;
+            serializer.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full;
         }
 
         protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
@@ -28,9 +37,19 @@ namespace Kukkii.Containers
 
             if (data != null)
             {
-                Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length));
-            }
+                using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
+                {
+                    using (JsonTextReader jtr = new JsonTextReader(sr))
+                    {
+                        lock (Cache)
+                        {
+                            Cache = serializer.Deserialize<IList<CookieDataPacket<object>>>(jtr);
+                        }
+                    }
 
+                }
+
+            }
             cacheLoaded = true;
         }
 
@@ -76,7 +95,18 @@ namespace Kukkii.Containers
         {
             //save cache to disk
 
-            return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache)));
+            string json = null;
+            using (StringWriter sw = new StringWriter())
+            {
+                using (JsonTextWriter jtw = new JsonTextWriter(sw))
+                {
+                    serializer.Serialize(jtw, Cache);
+                }
+
+                json = sw.ToString();
+            }
+
+            return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(json));
         }
 
         protected Task WriteDataViaFileSystem(byte[] data)
