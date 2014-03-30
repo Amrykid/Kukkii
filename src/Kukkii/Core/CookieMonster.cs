@@ -32,7 +32,12 @@ namespace Kukkii.Core
             workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
 
             if (workerThread.Status != TaskStatus.Running)
+            {
+                if (workerThread.IsCompleted || workerThread.IsFaulted)
+                    workerThread = new Task(RunQueue);
+
                 workerThread.Start();
+            }
 
             return tcs.Task;
         }
