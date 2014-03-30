@@ -27,11 +27,10 @@ namespace Kukkii
                 Device = new PersistentCookieContainer(CookieRegistration.FileSystemProvider);
                 //Secure = new EncryptedPersistentCookieContainer(CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider);
                 IsInitialized = true;
-                CookieRegistration.CookieJarIsInitialized = IsInitialized;
             }
         }
 
-        internal static bool IsInitialized { get; set; }
+        internal static bool IsInitialized { get { return CookieRegistration.CookieJarIsInitialized; } set { CookieRegistration.CookieJarIsInitialized = value; } }
 
         /// <summary>
         /// The name of the application using the CookieJar. This is for data persisting purposes.
