@@ -27,6 +27,7 @@ namespace Kukkii
                 Device = new PersistentCookieContainer(CookieRegistration.FileSystemProvider);
                 //Secure = new EncryptedPersistentCookieContainer(CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider);
                 IsInitialized = true;
+                CookieRegistration.CookieJarIsInitialized = IsInitialized;
             }
         }
 

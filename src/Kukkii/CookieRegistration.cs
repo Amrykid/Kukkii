@@ -12,7 +12,7 @@ namespace Kukkii
     {
         private static void CheckForInitialization()
         {
-            if (CookieJar.IsInitialized)
+            if (CookieJarIsInitialized)
                 throw new InvalidOperationException(typeof(CookieRegistration).Name + " can't be modified after CookieJar initialization.");
         }
 
@@ -32,5 +32,7 @@ namespace Kukkii
             get { return dataEncryptionProvider ?? new FakeDataEncryptionProvider(); }
             set { CheckForInitialization(); dataEncryptionProvider = value; }
         }
+
+        internal static bool CookieJarIsInitialized { get; set; }
     }
 }
