@@ -21,20 +21,24 @@ namespace Kukkii.FS.WP8
     {
         private static async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName)
         {
-            var folder = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync(applicationName);
-            if (folder == null)
-                folder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(applicationName);
+            try
+            {
+                return await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync(applicationName);
+            }
+            catch (Exception)
+            {
+            }
 
-            return folder;
+            return await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(applicationName);
         }
 
         public async System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
-            var file = await folder.GetFileAsync(contextInfo + ".json");
-
-            if (file != null)
+            try
             {
+                var file = await folder.GetFileAsync(contextInfo + ".json");
+
                 var stream = await file.OpenReadAsync();
 
                 var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size);
@@ -45,18 +49,24 @@ namespace Kukkii.FS.WP8
 
                 return buffer.ToArray();
             }
-            else
+            catch (Exception)
+            {
                 return null;
+            }
         }
 
         public async System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
-            var file = await folder.GetFileAsync(contextInfo + ".json");
+            StorageFile file = null;
 
+            try
+            {
+                file = await folder.GetFileAsync(contextInfo + ".json");
+            }
+            catch (Exception) { }
             if (file == null)
                 file = await folder.CreateFileAsync(contextInfo + ".json");
-
 
             var stream = await file.OpenTransactedWriteAsync();
             await stream.Stream.WriteAsync(data.AsBuffer());
