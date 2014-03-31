@@ -36,7 +36,11 @@ namespace Kukkii.Core
                 if (workerThread.IsCompleted || workerThread.IsFaulted)
                     workerThread = new Task(RunQueue);
 
-                workerThread.Start();
+                try
+                {
+                    workerThread.Start();
+                }
+                catch (InvalidOperationException) { }
             }
 
             return tcs.Task;
