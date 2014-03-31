@@ -20,9 +20,15 @@ namespace Kukkii.Core
         private static ManualResetEvent threadResetEvent = null;
         static CookieMonster()
         {
+            Initialize();
+        }
+
+        private static void Initialize()
+        {
             workQueue = new ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>>();
             workerThread = new Task(RunQueue);
             threadResetEvent = new ManualResetEvent(false);
+            workerThread.Start();
         }
 
         internal static Task<object> QueueWork(Func<object> action)
@@ -30,18 +36,6 @@ namespace Kukkii.Core
             var tcs = new TaskCompletionSource<object>();
 
             workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
-
-            if (workerThread.Status != TaskStatus.Running)
-            {
-                if (workerThread.IsCompleted || workerThread.IsFaulted)
-                    workerThread = new Task(RunQueue);
-
-                try
-                {
-                    workerThread.Start();
-                }
-                catch (InvalidOperationException) { }
-            }
 
             return tcs.Task;
         }
@@ -74,7 +68,7 @@ namespace Kukkii.Core
             }
             else
             {
-                threadResetEvent.WaitOne(300);
+                threadResetEvent.WaitOne(400);
             }
 
             RunQueue();
