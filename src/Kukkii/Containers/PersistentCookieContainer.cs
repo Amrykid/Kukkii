@@ -15,7 +15,7 @@ namespace Kukkii.Containers
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
-        internal PersistentCookieContainer(ICookieFileSystemProvider filesystem)
+        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem): base(cookie)
         {
             fileSystemProvider = filesystem;
             serializer = new JsonSerializer();

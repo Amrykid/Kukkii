@@ -13,6 +13,8 @@ namespace Kukkii
     /// </summary>
     public static class CookieJar
     {
+        private static CookieMonster threadRunner = null;
+
         static CookieJar()
         {
             Initialize();
@@ -23,10 +25,25 @@ namespace Kukkii
             //initialize the cookie jar!
             if (!IsInitialized)
             {
-                InMemory = new BasicCookieContainer();
-                Device = new PersistentCookieContainer(CookieRegistration.FileSystemProvider);
+                threadRunner = new CookieMonster();
+                InMemory = new BasicCookieContainer(threadRunner);
+                Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider);
                 //Secure = new EncryptedPersistentCookieContainer(CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider);
                 IsInitialized = true;
+            }
+        }
+
+        public static async Task DeinitializeAsync()
+        {
+            if (IsInitialized)
+            {
+                await Device.FlushAsync();
+                await threadRunner.DeinitializeAsync();
+
+                InMemory = null;
+                Device = null;
+
+                IsInitialized = false;
             }
         }
 
