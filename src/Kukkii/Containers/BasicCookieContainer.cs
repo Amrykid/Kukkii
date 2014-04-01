@@ -70,7 +70,7 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith(x => (T)((CookieDataPacket<object>)x.Result).Object);
+            return _InternalGetObject(key).ContinueWith(x => x.Result != null ? (T)((CookieDataPacket<object>)x.Result).Object : default(T));
         }
 
         /// <summary>
