@@ -14,7 +14,7 @@ namespace Kukkii.Containers
     {
         private ICookieDataEncryptionProvider encryptionProvider = null;
         private bool containerDisabled = false;
-        internal EncryptedPersistentCookieContainer(ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor): base(filesystem)
+        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor): base(cookie, filesystem)
         {
             contextInfo = "encrypted_persistent_cache";
 

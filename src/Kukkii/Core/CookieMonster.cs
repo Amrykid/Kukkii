@@ -13,36 +13,69 @@ namespace Kukkii.Core
     /// A basic thread runner thingy.
     /// It is responsible for all of the asynchronous operations running inside of Kukkii.
     /// </summary>
-    internal static class CookieMonster
+    public class CookieMonster: IDisposable
     {
-        private static ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>> workQueue = null;
-        private static Task workerThread = null;
-        private static ManualResetEvent threadResetEvent = null;
-        static CookieMonster()
+        private ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>> workQueue = null;
+        private Task workerThread = null;
+        private ManualResetEvent threadResetEvent = null;
+        private CancellationTokenSource cancelSource = null;
+        private CancellationToken cancelToken = CancellationToken.None;
+        private volatile bool isInitialized = false;
+        internal CookieMonster()
         {
-            workQueue = new ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>>();
-            workerThread = new Task(RunQueue);
-            threadResetEvent = new ManualResetEvent(false);
+            Initialize();
         }
 
-        internal static Task<object> QueueWork(Func<object> action)
+        private void Initialize()
+        {
+            if (isInitialized) return;
+
+            workQueue = new ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>>();
+            cancelSource = new CancellationTokenSource();
+            cancelToken = cancelSource.Token;
+            workerThread = new Task(RunQueue, cancelToken);
+            threadResetEvent = new ManualResetEvent(false);
+            workerThread.Start();
+
+            isInitialized = true;
+        }
+        internal async Task DeinitializeAsync()
+        {
+            if (!isInitialized) return;
+
+            cancelSource.Cancel();
+            await workerThread;
+            threadResetEvent.Dispose();
+
+            if (workQueue.Count > 0)
+            {
+                while (workQueue.Count > 0)
+                {
+                    Tuple<Func<object>, TaskCompletionSource<object>> information = null;
+
+                    if (workQueue.TryDequeue(out information))
+                    {
+                        Func<object> job = information.Item1;
+                        TaskCompletionSource<object> reportingTask = information.Item2;
+
+                        reportingTask.SetCanceled();
+                    }
+                }
+            }
+
+            isInitialized = false;
+        }
+
+        internal Task<object> QueueWork(Func<object> action)
         {
             var tcs = new TaskCompletionSource<object>();
-
+            
             workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
-
-            if (workerThread.Status != TaskStatus.Running)
-            {
-                if (workerThread.IsCompleted || workerThread.IsFaulted)
-                    workerThread = new Task(RunQueue);
-
-                workerThread.Start();
-            }
 
             return tcs.Task;
         }
 
-        private static void RunQueue()
+        private void RunQueue()
         {
             threadResetEvent.Reset();
 
@@ -70,10 +103,15 @@ namespace Kukkii.Core
             }
             else
             {
-                threadResetEvent.WaitOne(300);
+                threadResetEvent.WaitOne(400);
             }
 
             RunQueue();
+        }
+
+        public void Dispose()
+        {
+            DeinitializeAsync().Wait();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Kukkii.Containers
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
-        internal PersistentCookieContainer(ICookieFileSystemProvider filesystem)
+        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem): base(cookie)
         {
             fileSystemProvider = filesystem;
             serializer = new JsonSerializer();
@@ -71,7 +71,7 @@ namespace Kukkii.Containers
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            throw new NotImplementedException();
+            return await base.PeekObjectAsync<T>(key);
         }
 
         public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)

@@ -12,10 +12,13 @@ namespace Kukkii.Containers
     /// </summary>
     public class BasicCookieContainer : ICookieContainer
     {
-        public BasicCookieContainer()
+        protected CookieMonster CookieMonster { get; private set; }
+        public BasicCookieContainer(CookieMonster threadThing)
         {
             //Create an object to hold all of the items stored in the container.
             Cache = (List<CookieDataPacket<object>>)Activator.CreateInstance(CookieRegistration.DefaultCacheType);
+
+            CookieMonster = threadThing;
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith(x => (T)((CookieDataPacket<object>)x.Result).Object);
+            return _InternalGetObject(key).ContinueWith(x => x.Result != null ? (T)((CookieDataPacket<object>)x.Result).Object : default(T));
         }
 
         /// <summary>
