@@ -25,14 +25,13 @@ namespace Kukkii.FS.Windows
                 {
                     var directory = CreateAndReturnDataDirectory(applicationName);
 
-                    try
-                    {
+                    var fileName = directory + contextInfo + ".json";
+                    
+                    if (System.IO.File.Exists(fileName))
                         return System.IO.File.ReadAllBytes(directory + contextInfo + ".json");
-                    }
-                    catch (Exception)
-                    {
+                    else
                         return null;
-                    }
+                    
                 });
         }
 
