@@ -1,6 +1,7 @@
 ﻿using Kukkii.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -39,15 +40,17 @@ namespace Kukkii.FS.WP8
             {
                 var file = await folder.GetFileAsync(contextInfo + ".json");
 
-                var stream = await file.OpenReadAsync();
+                var accessStream = await file.OpenReadAsync();
 
-                var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size);
+                byte[] data = null;
 
-                await stream.ReadAsync(buffer, (uint)buffer.Length, InputStreamOptions.ReadAhead);
+                using (Stream stream = accessStream.AsStreamForRead((int)accessStream.Size))
+                {
+                    data = new byte[(int)stream.Length];
+                    await stream.ReadAsync(data, 0, (int)stream.Length);
+                }
 
-                stream.Dispose();
-
-                return buffer.ToArray();
+                return data;
             }
             catch (Exception)
             {
