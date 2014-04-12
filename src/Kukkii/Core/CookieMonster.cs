@@ -13,7 +13,7 @@ namespace Kukkii.Core
     /// A basic thread runner thingy.
     /// It is responsible for all of the asynchronous operations running inside of Kukkii.
     /// </summary>
-    public class CookieMonster: IDisposable
+    public class CookieMonster : IDisposable
     {
         private ConcurrentQueue<Tuple<Func<object>, TaskCompletionSource<object>>> workQueue = null;
         private Task workerThread = null;
@@ -69,7 +69,13 @@ namespace Kukkii.Core
         internal Task<object> QueueWork(Func<object> action)
         {
             var tcs = new TaskCompletionSource<object>();
-            
+
+            if (workerThread.IsFaulted || workerThread.IsCompleted)
+            {
+                workerThread = new Task(RunQueue, cancelToken);
+                workerThread.Start();
+            }
+
             workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
 
             return tcs.Task;
@@ -103,7 +109,14 @@ namespace Kukkii.Core
             }
             else
             {
-                threadResetEvent.WaitOne(400);
+                int loopCount = 0;
+                while (workQueue.Count == 0)
+                {
+                    threadResetEvent.WaitOne(500 + (int)(loopCount + 1.1));
+                    loopCount++;
+
+                    if (loopCount == 50) return;
+                }
             }
 
             RunQueue();
