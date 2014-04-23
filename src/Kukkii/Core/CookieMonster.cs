@@ -76,6 +76,8 @@ namespace Kukkii.Core
                 workerThread.Start();
             }
 
+
+            threadResetEvent.Set();
             workQueue.Enqueue(new Tuple<Func<object>, TaskCompletionSource<object>>(action, tcs));
 
             return tcs.Task;
@@ -83,43 +85,35 @@ namespace Kukkii.Core
 
         private void RunQueue()
         {
-            threadResetEvent.Reset();
-
-            if (workQueue.Count > 0)
+            while (!cancelToken.IsCancellationRequested)
             {
-                while (workQueue.Count > 0)
+                if (workQueue.Count > 0)
                 {
-                    Tuple<Func<object>, TaskCompletionSource<object>> information = null;
-
-                    if (workQueue.TryDequeue(out information))
+                    while (workQueue.Count > 0)
                     {
-                        Func<object> job = information.Item1;
-                        TaskCompletionSource<object> reportingTask = information.Item2;
+                        Tuple<Func<object>, TaskCompletionSource<object>> information = null;
 
-                        try
+                        if (workQueue.TryDequeue(out information))
                         {
-                            reportingTask.SetResult(job());
-                        }
-                        catch (Exception ex)
-                        {
-                            reportingTask.SetException(ex);
+                            Func<object> job = information.Item1;
+                            TaskCompletionSource<object> reportingTask = information.Item2;
+
+                            try
+                            {
+                                reportingTask.SetResult(job());
+                            }
+                            catch (Exception ex)
+                            {
+                                reportingTask.SetException(ex);
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                int loopCount = 0;
-                while (workQueue.Count == 0)
+                else
                 {
-                    threadResetEvent.WaitOne(500 + (int)(loopCount + 1.1));
-                    loopCount++;
-
-                    if (loopCount == 50) return;
+                    threadResetEvent.WaitOne();
                 }
             }
-
-            RunQueue();
         }
 
         public void Dispose()
