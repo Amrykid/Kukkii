@@ -15,7 +15,8 @@ namespace Kukkii.Core
         /// <returns></returns>
         Task<bool> ContainsObjectAsync(string key);
         /// <summary>
-        /// Grabs an object from the container using the key provided. The object is removed from the container. If the object does not exists, the creation function is called to provide a replacement object.
+        /// Grabs an object from the container using the key provided. The object is removed from the container. 
+        /// If the object does not exists, the creation function is called to provide a replacement object.
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
         /// <param name="creationFunction">The function to call to provide a replacement item should the key/item not exist.</param>
@@ -23,11 +24,13 @@ namespace Kukkii.Core
         Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null);
         Task<IEnumerable<T>> GetObjectsAsync<T>(string key);
         /// <summary>
-        /// Returns the object stored using the provided key and not remove it from the container.
+        /// Returns the object stored using the provided key and not remove it from the container. 
+        /// If the object does not exists, the creation function is called to provide a replacement object.
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
+        /// <param name="creationFunction">The function to call to provide a replacement item should the key/item not exist.</param>
         /// <returns></returns>
-        Task<T> PeekObjectAsync<T>(string key);
+        Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null);
         /// <summary>
         /// Inserts an object into the container with a key and optional expiration time.
         /// </summary>

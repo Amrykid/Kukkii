@@ -66,11 +66,24 @@ namespace Kukkii.Containers
         /// </summary>
         /// <param name="key">The key used to locate the object.</param>
         /// <returns></returns>
-        public virtual System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
+        public virtual System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            return _InternalGetObject(key).ContinueWith(x => x.Result != null ? (T)((CookieDataPacket<object>)x.Result).Object : default(T));
+            return _InternalGetObject(key).ContinueWith(x =>
+            {
+                if (x.Result != null)
+                {
+                    return (T)((CookieDataPacket<object>)x.Result).Object;
+                }
+                else
+                {
+                    if (creationFunction != null)
+                        return creationFunction(); //call the creation function to get a replacement item.
+                    else
+                        return default(T);
+                }
+            });
         }
 
         /// <summary>

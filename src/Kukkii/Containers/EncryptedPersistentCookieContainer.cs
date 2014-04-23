@@ -69,12 +69,22 @@ namespace Kukkii.Containers
             });
         }
 
-        public override Task<T> PeekObjectAsync<T>(string key)
+        public override Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             return _InternalGetObject(key).ContinueWith(x =>
                 {
-                    var cookie = (CookieDataPacket<object>)x.Result;
-                    return DecryptAndConvertCookieObject<T>(cookie);
+                    if (x.Result != null)
+                    {
+                        var cookie = (CookieDataPacket<object>)x.Result;
+                        return DecryptAndConvertCookieObject<T>(cookie);
+                    }
+                    else
+                    {
+                        if (creationFunction != null)
+                            return creationFunction(); //call the creation function to get a replacement item.
+                        else
+                            return default(T);
+                    }
                 });
         }
 

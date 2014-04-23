@@ -67,7 +67,7 @@ namespace Kukkii.Containers
             throw new NotImplementedException();
         }
 
-        public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key)
+        public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
