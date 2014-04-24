@@ -71,7 +71,7 @@ namespace Kukkii.Containers
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            return await base.PeekObjectAsync<T>(key);
+            return await base.PeekObjectAsync<T>(key, creationFunction);
         }
 
         public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
