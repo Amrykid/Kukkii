@@ -57,6 +57,13 @@ namespace Kukkii.Containers
             cacheLoaded = true;
         }
 
+        public override async Task<bool> ContainsObjectAsync(string key)
+        {
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            return await base.ContainsObjectAsync(key);
+        }
+
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
