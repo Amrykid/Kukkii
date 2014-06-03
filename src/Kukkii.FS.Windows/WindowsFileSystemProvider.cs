@@ -19,7 +19,7 @@ namespace Kukkii.FS.Windows
         }
 
 
-        public Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
+        public Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
         {
             return Task.Run<byte[]>(() =>
                 {
@@ -35,7 +35,7 @@ namespace Kukkii.FS.Windows
                 });
         }
 
-        public Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
+        public Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal)
         {
             return Task.Run(() =>
                 {

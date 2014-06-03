@@ -14,7 +14,7 @@ namespace Kukkii.Containers
     {
         private ICookieDataEncryptionProvider encryptionProvider = null;
         private bool containerDisabled = false;
-        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor): base(cookie, filesystem)
+        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal): base(cookie, filesystem, isLocal)
         {
             contextInfo = "encrypted_persistent_cache";
 
@@ -103,7 +103,7 @@ namespace Kukkii.Containers
 
             //load cache from disk
 
-            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, base.providerIsLocal);
 
             if (data != null)
             {

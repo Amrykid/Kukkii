@@ -15,7 +15,7 @@ namespace Kukkii.Containers
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
-        private bool providerIsLocal = false;
+        protected bool providerIsLocal = false;
         internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal): base(cookie)
         {
             fileSystemProvider = filesystem;

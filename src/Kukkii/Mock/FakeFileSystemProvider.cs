@@ -18,12 +18,12 @@ namespace Kukkii.Mock
             Data = System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
         }
 
-        public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
+        public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
         {
             return Task.FromResult(Data);
         }
 
-        public System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
+        public System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal)
         {
             Data = data;
             return Task.Delay(0);

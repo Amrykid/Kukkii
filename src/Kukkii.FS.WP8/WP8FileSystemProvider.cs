@@ -33,7 +33,7 @@ namespace Kukkii.FS.WP8
             return await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(applicationName);
         }
 
-        public async System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
+        public async System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
             try
@@ -58,7 +58,7 @@ namespace Kukkii.FS.WP8
             }
         }
 
-        public async System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
+        public async System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
             StorageFile file = null;
