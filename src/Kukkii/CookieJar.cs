@@ -27,7 +27,8 @@ namespace Kukkii
             {
                 threadRunner = new CookieMonster();
                 InMemory = new BasicCookieContainer(threadRunner);
-                Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider);
+                Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
+                Roaming = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, false)
                 //Secure = new EncryptedPersistentCookieContainer(CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider);
                 IsInitialized = true;
             }
@@ -62,6 +63,7 @@ namespace Kukkii
         /// A cookie container that can save and load objects on physical media.
         /// </summary>
         public static ICookieContainer Device { get; private set; }
+        public static ICookieContainer Roaming { get; private set; }
         public static ICookieContainer Secure { get; private set; }
     }
 }

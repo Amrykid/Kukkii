@@ -15,9 +15,13 @@ namespace Kukkii.Containers
         protected bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
-        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem): base(cookie)
+        private bool providerIsLocal = false;
+        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal): base(cookie)
         {
             fileSystemProvider = filesystem;
+
+            providerIsLocal = isLocal;
+
             serializer = new JsonSerializer();
             serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
             serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
@@ -33,7 +37,7 @@ namespace Kukkii.Containers
 
             //load cache from disk
 
-            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
 
             if (data != null)
             {
@@ -113,7 +117,7 @@ namespace Kukkii.Containers
         {
             return CookieMonster.QueueWork(() =>
             {
-                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data).Wait();
+                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data, providerIsLocal).Wait();
 
                 return true;
             });
