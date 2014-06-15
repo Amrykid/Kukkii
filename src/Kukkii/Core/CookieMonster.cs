@@ -108,14 +108,22 @@ namespace Kukkii.Core
                             }
                         }
                     }
+
+                    threadResetEvent.Reset();
                 }
                 else
                 {
-                    threadResetEvent.WaitOne();
+                    if (threadResetEvent.WaitOne(7000) == false)
+                    {
+                        if (workQueue.Count == 0)
+                        {
+                            //exit the thread. on phones, this was stealing an entire CPU core.
+                            return;
+                        }
+                    }
                 }
             }
         }
-
         public void Dispose()
         {
             DeinitializeAsync().Wait();
