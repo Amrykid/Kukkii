@@ -59,6 +59,7 @@
     <Compile Include="Core\ICookieContainer.cs" />
     <Compile Include="Core\ICookieDataEncryptionProvider.cs" />
     <Compile Include="Core\ICookieFileSystemProvider.cs" />
+    <Compile Include="Core\IPersistentCookieContainer.cs" />
     <Compile Include="External\ConcurrentQueue.cs" />
     <Compile Include="External\IProducerConsumerCollection.cs" />
     <Compile Include="Mock\FakeDataEncryptionProvider.cs" />
@@ -81,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.1\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -62,8 +62,8 @@ namespace Kukkii
         /// <summary>
         /// A cookie container that can save and load objects on physical media.
         /// </summary>
-        public static ICookieContainer Device { get; private set; }
-        public static ICookieContainer Roaming { get; private set; }
+        public static IPersistentCookieContainer Device { get; private set; }
+        public static IPersistentCookieContainer Roaming { get; private set; }
         public static ICookieContainer Secure { get; private set; }
     }
 }

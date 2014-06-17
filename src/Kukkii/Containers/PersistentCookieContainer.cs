@@ -9,7 +9,7 @@ using System.IO;
 
 namespace Kukkii.Containers
 {
-    public class PersistentCookieContainer : BasicCookieContainer
+    public class PersistentCookieContainer : BasicCookieContainer, IPersistentCookieContainer
     {
         private ICookieFileSystemProvider fileSystemProvider = null;
         protected bool cacheLoaded = false;
@@ -128,6 +128,14 @@ namespace Kukkii.Containers
 
                 return true;
             });
+        }
+
+        public async Task ReloadCacheAsync()
+        {
+            if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
+
+            cacheLoaded = false;
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
         }
     }
 }
