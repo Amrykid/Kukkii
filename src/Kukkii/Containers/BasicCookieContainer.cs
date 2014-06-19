@@ -12,7 +12,7 @@ namespace Kukkii.Containers
     /// </summary>
     public class BasicCookieContainer : ICookieContainer
     {
-        protected CookieMonster CookieMonster { get; private set; }
+        protected CookieMonster CookieMonster { get; set; }
         public BasicCookieContainer(CookieMonster threadThing)
         {
             //Create an object to hold all of the items stored in the container.
@@ -213,6 +213,19 @@ namespace Kukkii.Containers
 
                 return true;
             }).ContinueWith<bool>(x => (bool)x.Result);
+        }
+
+
+        public async virtual Task UpdateObjectAsync<T>(string key, T item)
+        {
+            await GetObjectAsync<T>(key);
+
+            if (!await ContainsObjectAsync(key))
+            {
+                await InsertObjectAsync<T>(key, item);
+            }
+            else
+                throw new Exception();
         }
     }
 }

@@ -12,11 +12,12 @@ namespace Kukkii.Containers
     public class PersistentCookieContainer : BasicCookieContainer, IPersistentCookieContainer
     {
         private ICookieFileSystemProvider fileSystemProvider = null;
-        protected bool cacheLoaded = false;
+        protected volatile bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
         protected bool providerIsLocal = false;
-        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal): base(cookie)
+        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal)
+            : base(cookie)
         {
             fileSystemProvider = filesystem;
 
@@ -120,6 +121,13 @@ namespace Kukkii.Containers
             return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(json));
         }
 
+        public override async Task UpdateObjectAsync<T>(string key, T item)
+        {
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            await base.UpdateObjectAsync<T>(key, item);
+        }
+
         protected Task WriteDataViaFileSystem(byte[] data)
         {
             return CookieMonster.QueueWork(() =>
@@ -134,7 +142,14 @@ namespace Kukkii.Containers
         {
             if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
 
+            await CookieMonster.DeinitializeAsync();
+            try
+            {
+                CookieMonster.Dispose();
+            }
+            catch (Exception) { }
             cacheLoaded = false;
+            CookieMonster = new CookieMonster();
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
         }
     }

@@ -40,6 +40,8 @@ namespace Kukkii.Core
         /// <returns></returns>
         Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1);
 
+        Task UpdateObjectAsync<T>(string key, T item);
+
         /// <summary>
         /// Clears out the expired items in the container.
         /// </summary>
