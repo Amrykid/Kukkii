@@ -11,7 +11,7 @@ using System.IO;
 
 namespace Kukkii.UniversalApps
 {
-    public class UniversalFileSystemProvider: Kukkii.Core.ICookieFileSystemProvider
+    public class UniversalFileSystemProvider : Kukkii.Core.ICookieFileSystemProvider
     {
         private static async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName, bool isLocal)
         {
@@ -65,10 +65,13 @@ namespace Kukkii.UniversalApps
             if (file == null)
                 file = await folder.CreateFileAsync(contextInfo + ".json");
 
-            var stream = await file.OpenTransactedWriteAsync();
-            await stream.Stream.WriteAsync(data.AsBuffer());
+            var stream = await file.OpenStreamForWriteAsync();
 
-            await stream.CommitAsync();
+            var buffer = data;
+
+            await stream.WriteAsync(buffer, 0, buffer.Length);
+
+            await stream.FlushAsync();
 
             stream.Dispose();
         }

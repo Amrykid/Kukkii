@@ -20,11 +20,13 @@ namespace Kukkii
             Initialize();
         }
 
-        private static void Initialize()
+        public static void Initialize()
         {
             //initialize the cookie jar!
             if (!IsInitialized)
             {
+                if (threadRunner != null) return;
+
                 threadRunner = new CookieMonster();
                 InMemory = new BasicCookieContainer(threadRunner);
                 Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
@@ -38,17 +40,19 @@ namespace Kukkii
         {
             if (IsInitialized)
             {
+                await Roaming.FlushAsync();
                 await Device.FlushAsync();
                 await threadRunner.DeinitializeAsync();
 
                 InMemory = null;
                 Device = null;
+                Roaming = null;
 
                 IsInitialized = false;
             }
         }
 
-        internal static bool IsInitialized { get { return CookieRegistration.CookieJarIsInitialized; } set { CookieRegistration.CookieJarIsInitialized = value; } }
+        public static bool IsInitialized { get { return CookieRegistration.CookieJarIsInitialized; } internal set { CookieRegistration.CookieJarIsInitialized = value; } }
 
         /// <summary>
         /// The name of the application using the CookieJar. This is for data persisting purposes.
