@@ -40,13 +40,14 @@ namespace Kukkii
         {
             if (IsInitialized)
             {
-                await Roaming.FlushAsync();
-                await Device.FlushAsync();
+                await Task.WhenAll(Device.FlushAsync(), Roaming.FlushAsync());
                 await threadRunner.DeinitializeAsync();
 
                 InMemory = null;
                 Device = null;
                 Roaming = null;
+
+                threadRunner = null;
 
                 IsInitialized = false;
             }
