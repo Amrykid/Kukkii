@@ -30,6 +30,8 @@ namespace Kukkii.Containers
             serializer.MaxDepth = 2048;
             serializer.TypeNameHandling = TypeNameHandling.All;
             serializer.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full;
+
+            reloadingTask.TrySetResult(0); //default status
         }
 
         protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
@@ -60,6 +62,8 @@ namespace Kukkii.Containers
 
         public override async Task<bool> ContainsObjectAsync(string key)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.ContainsObjectAsync(key);
@@ -67,6 +71,8 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.GetObjectAsync<T>(key, creationFunction);
@@ -74,6 +80,8 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             throw new NotImplementedException();
@@ -81,6 +89,8 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.PeekObjectAsync<T>(key, creationFunction);
@@ -88,6 +98,8 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.InsertObjectAsync(key, item, expirationTime);
@@ -95,6 +107,8 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task CleanUpAsync()
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.CleanUpAsync();
@@ -123,6 +137,8 @@ namespace Kukkii.Containers
 
         public override async Task UpdateObjectAsync<T>(string key, T item)
         {
+            await reloadingTask.Task;
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.UpdateObjectAsync<T>(key, item);
@@ -138,19 +154,21 @@ namespace Kukkii.Containers
             });
         }
 
+        private TaskCompletionSource<object> reloadingTask = new TaskCompletionSource<object>();
+
         public async Task ReloadCacheAsync()
         {
             if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
 
-            await CookieMonster.DeinitializeAsync();
-            try
-            {
-                CookieMonster.Dispose();
-            }
-            catch (Exception) { }
+            if (reloadingTask.Task.IsCompleted)
+                reloadingTask = new TaskCompletionSource<object>();
+
+            await CookieMonster.QueueWork(() => null); //wait for the queue to empty
+
             cacheLoaded = false;
-            CookieMonster = new CookieMonster();
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            reloadingTask.TrySetResult(0);
         }
     }
 }
