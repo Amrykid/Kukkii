@@ -36,11 +36,14 @@ namespace Kukkii
             }
         }
 
-        public static async Task DeinitializeAsync()
+        public static async Task DeinitializeAsync(bool flush = true)
         {
             if (IsInitialized)
             {
-                await Task.WhenAll(Device.FlushAsync(), Roaming.FlushAsync());
+                if (flush)
+                {
+                    await Task.WhenAll(Device.FlushAsync(), Roaming.FlushAsync());
+                }
                 await threadRunner.DeinitializeAsync();
 
                 InMemory = null;
