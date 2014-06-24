@@ -170,5 +170,10 @@ namespace Kukkii.Containers
 
             reloadingTask.TrySetResult(0);
         }
+
+        public bool IsCacheLoaded
+        {
+            get { return cacheLoaded; }
+        }
     }
 }

@@ -8,6 +8,8 @@ namespace Kukkii.Core
 {
     public interface IPersistentCookieContainer: ICookieContainer
     {
+        bool IsCacheLoaded { get; }
+
         Task ReloadCacheAsync();
     }
 }
