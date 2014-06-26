@@ -175,5 +175,14 @@ namespace Kukkii.Containers
         {
             get { return cacheLoaded; }
         }
+
+
+        public async Task InitializeAsync()
+        {
+            if (!reloadingTask.Task.Wait(1))
+                throw new InvalidOperationException();
+
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+        }
     }
 }
