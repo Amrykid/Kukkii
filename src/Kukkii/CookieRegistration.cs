@@ -34,6 +34,6 @@ namespace Kukkii
             set { CheckForInitialization(); dataEncryptionProvider = value; }
         }
 
-        internal static bool CookieJarIsInitialized { get { return initialized; } set { initialized = value; } }
+        public static bool CookieJarIsInitialized { get { return initialized; } internal set { initialized = value; } }
     }
 }
