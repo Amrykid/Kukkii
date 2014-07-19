@@ -51,6 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Containers\BasicCookieContainer.cs" />
+    <Compile Include="Containers\DataRoamingPersistentCookieContainer.cs" />
     <Compile Include="Containers\EncryptedPersistentCookieContainer.cs" />
     <Compile Include="Containers\PersistentCookieContainer.cs" />
     <Compile Include="CookieJar.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Core\ICookieContainer.cs" />
     <Compile Include="Core\ICookieDataEncryptionProvider.cs" />
     <Compile Include="Core\ICookieFileSystemProvider.cs" />
+    <Compile Include="Core\IDataRoamingPersistantCookieContainer.cs" />
     <Compile Include="Core\IPersistentCookieContainer.cs" />
     <Compile Include="External\ConcurrentQueue.cs" />
     <Compile Include="External\IProducerConsumerCollection.cs" />
@@ -81,12 +83,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\Visual Studio 2013\Projects\CookieBib\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
