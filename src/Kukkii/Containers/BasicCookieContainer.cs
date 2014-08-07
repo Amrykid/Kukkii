@@ -56,9 +56,16 @@ namespace Kukkii.Containers
                 });
         }
 
-        public virtual System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
+        public virtual async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
-            throw new NotImplementedException();
+            List<T> objects = new List<T>();
+
+            T item;
+
+            while ((item = await GetObjectAsync<T>(key)) != null)
+                objects.Add(item);
+
+            return objects;
         }
 
         /// <summary>
@@ -226,6 +233,18 @@ namespace Kukkii.Containers
             }
             else
                 throw new Exception();
+        }
+
+
+        public virtual Task<int> CountObjectsAsync(string key)
+        {
+            return CookieMonster.QueueWork(() =>
+            {
+                lock (Cache) //locks the cache
+                {
+                    return Cache.Where(x => x.Key == key).Count();
+                }
+            }).ContinueWith<int>(x => (int)x.Result);
         }
     }
 }

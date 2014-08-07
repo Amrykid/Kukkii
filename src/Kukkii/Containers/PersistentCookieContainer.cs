@@ -69,6 +69,15 @@ namespace Kukkii.Containers
             return await base.ContainsObjectAsync(key);
         }
 
+        public override async Task<int> CountObjectsAsync(string key)
+        {
+            await reloadingTask.Task;
+
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            return await base.CountObjectsAsync(key);
+        }
+
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             await reloadingTask.Task;
@@ -84,7 +93,7 @@ namespace Kukkii.Containers
 
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
-            throw new NotImplementedException();
+            return await base.GetObjectsAsync<T>(key);
         }
 
         public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)

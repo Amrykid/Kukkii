@@ -42,6 +42,8 @@ namespace Kukkii.Core
 
         Task UpdateObjectAsync<T>(string key, T item);
 
+        Task<int> CountObjectsAsync(string key);
+
         /// <summary>
         /// Clears out the expired items in the container.
         /// </summary>
