@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using Windows.Storage;
 using Windows.Security.Cryptography.DataProtection;
 using Windows.Storage.Streams;
+using Windows.Storage;
+using Windows.Storage.Provider;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Kukkii.UniversalApps
 {
-    class UniversalDataEncryptionProvider: Kukkii.Core.ICookieDataEncryptionProvider
+    public class UniversalDataEncryptionProvider: Kukkii.Core.ICookieDataEncryptionProvider
     {
         private Windows.Security.Cryptography.DataProtection.DataProtectionProvider provider = null;
         public UniversalDataEncryptionProvider()
@@ -17,13 +22,20 @@ namespace Kukkii.UniversalApps
         }
         public byte[] EncryptData(byte[] unencryptedData)
         {
-            //provider.ProtectAsync(new Windows.Storage.Streams.Buffer(unencryptedData.Length).)
-            throw new NotImplementedException();
+            var buffer = unencryptedData.AsBuffer();
+
+            var protectedBuffer = provider.ProtectAsync(buffer).AsTask().Result;
+
+            return protectedBuffer.ToArray();
         }
 
         public byte[] DecryptData(byte[] encryptedData)
         {
-            throw new NotImplementedException();
+            var buffer = encryptedData.AsBuffer();
+
+            var unprotectedBuffer = provider.UnprotectAsync(buffer).AsTask().Result;
+
+            return unprotectedBuffer.ToArray();
         }
     }
 }

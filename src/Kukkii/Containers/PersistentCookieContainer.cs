@@ -44,20 +44,25 @@ namespace Kukkii.Containers
 
             if (data != null)
             {
-                using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
-                {
-                    using (JsonTextReader jtr = new JsonTextReader(sr))
-                    {
-                        lock (Cache)
-                        {
-                            Cache = serializer.Deserialize<IList<CookieDataPacket<object>>>(jtr);
-                        }
-                    }
-
-                }
+                LoadCacheFromData(data);
 
             }
             cacheLoaded = true;
+        }
+
+        protected void LoadCacheFromData(byte[] data)
+        {
+            using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
+            {
+                using (JsonTextReader jtr = new JsonTextReader(sr))
+                {
+                    lock (Cache)
+                    {
+                        Cache = serializer.Deserialize<IList<CookieDataPacket<object>>>(jtr);
+                    }
+                }
+
+            }
         }
 
         public override async Task<bool> ContainsObjectAsync(string key)
