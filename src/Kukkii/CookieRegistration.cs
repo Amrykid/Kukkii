@@ -20,6 +20,7 @@ namespace Kukkii
 
         private static ICookieFileSystemProvider fileSystemProvider = null;
         private static ICookieDataEncryptionProvider dataEncryptionProvider = null;
+        private static ICookieDataRoamingProvider roamingProvider = null;
         private static bool initialized = false;
 
         public static ICookieFileSystemProvider FileSystemProvider
@@ -32,6 +33,12 @@ namespace Kukkii
         {
             get { return dataEncryptionProvider ?? new FakeDataEncryptionProvider(); }
             set { CheckForInitialization(); dataEncryptionProvider = value; }
+        }
+
+        public static ICookieDataRoamingProvider RoamingDataProvider
+        {
+            get { return roamingProvider ?? new FakeDataRoamingProvider(); }
+            set { CheckForInitialization(); roamingProvider = value; }
         }
 
         public static bool CookieJarIsInitialized { get { return initialized; } internal set { initialized = value; } }

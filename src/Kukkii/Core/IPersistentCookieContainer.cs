@@ -18,5 +18,7 @@ namespace Kukkii.Core
         Task InitializeAsync();
 
         Task ReloadCacheAsync();
+
+        event EventHandler<CookieCacheReloadedEventArgs> CacheReloaded;
     }
 }

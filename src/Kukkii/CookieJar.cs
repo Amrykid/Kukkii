@@ -30,7 +30,7 @@ namespace Kukkii
                 threadRunner = new CookieMonster();
                 InMemory = new BasicCookieContainer(threadRunner);
                 Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
-                Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, false);
+                Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.RoamingDataProvider, false);
                 Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
                 IsInitialized = true;
             }

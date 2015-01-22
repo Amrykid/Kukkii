@@ -183,6 +183,9 @@ namespace Kukkii.Containers
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             reloadingTask.TrySetResult(0);
+
+            if (CacheReloaded != null)
+                CacheReloaded(this, new CookieCacheReloadedEventArgs());
         }
 
         public bool IsCacheLoaded
@@ -198,5 +201,7 @@ namespace Kukkii.Containers
 
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
         }
+
+        public event EventHandler<CookieCacheReloadedEventArgs> CacheReloaded;
     }
 }

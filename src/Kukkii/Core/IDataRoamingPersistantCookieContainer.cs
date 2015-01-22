@@ -8,5 +8,6 @@ namespace Kukkii.Core
 {
     public interface IDataRoamingPersistentCookieContainer: IPersistentCookieContainer
     {
+        event EventHandler<CookieDataRoamedEventArgs> DataRoamed;
     }
 }

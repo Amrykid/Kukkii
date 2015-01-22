@@ -13,6 +13,11 @@ namespace Kukkii.UniversalApps
 {
     public class UniversalFileSystemProvider : Kukkii.Core.ICookieFileSystemProvider
     {
+        public UniversalFileSystemProvider()
+        {
+            
+        }
+
         private static async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName, bool isLocal)
         {
             StorageFolder folder = isLocal ? Windows.Storage.ApplicationData.Current.LocalFolder : Windows.Storage.ApplicationData.Current.RoamingFolder;
