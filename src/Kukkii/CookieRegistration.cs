@@ -18,9 +18,9 @@ namespace Kukkii
 
         internal static Type DefaultCacheType { get { return typeof(List<CookieDataPacket<object>>); } }
 
-        private static ICookieFileSystemProvider fileSystemProvider = null;
-        private static ICookieDataEncryptionProvider dataEncryptionProvider = null;
-        private static ICookieDataRoamingProvider roamingProvider = null;
+        private static ICookieFileSystemProvider fileSystemProvider = new UniversalApps.UniversalFileSystemProvider();
+        private static ICookieDataEncryptionProvider dataEncryptionProvider = new UniversalApps.UniversalDataEncryptionProvider();
+        private static ICookieDataRoamingProvider roamingProvider = new UniversalApps.UniversalRoamingDataProvider();
         private static bool initialized = false;
 
         public static ICookieFileSystemProvider FileSystemProvider
