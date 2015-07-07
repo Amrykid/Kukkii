@@ -25,7 +25,7 @@ namespace Kukkii.Containers
 
             serializer = new JsonSerializer();
             serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-            serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            serializer.PreserveReferencesHandling = PreserveReferencesHandling.All;
             serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
             serializer.MaxDepth = 2048;
             serializer.TypeNameHandling = TypeNameHandling.All;
@@ -58,7 +58,7 @@ namespace Kukkii.Containers
                 {
                     lock (Cache)
                     {
-                        Cache = serializer.Deserialize<IList<CookieDataPacket<object>>>(jtr);
+                        Cache = serializer.Deserialize<List<CookieDataPacket<object>>>(jtr);
                     }
                 }
 

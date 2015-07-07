@@ -108,7 +108,10 @@ namespace Kukkii.Containers
             if (data != null)
             {
                 data = encryptionProvider.DecryptData(data);
-                Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length));
+
+                var jsonStr = System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length);
+
+                Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(jsonStr);
             }
 
             cacheLoaded = true;

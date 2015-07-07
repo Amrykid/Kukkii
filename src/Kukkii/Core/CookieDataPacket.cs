@@ -9,7 +9,7 @@ namespace Kukkii.Core
     [DataContract]
     public class CookieDataPacket<T>
     {
-        internal CookieDataPacket()
+        public CookieDataPacket()
         {
         }
 
