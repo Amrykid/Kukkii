@@ -11,7 +11,7 @@ namespace Kukkii.Containers
 {
     public class PersistentCookieContainer : BasicCookieContainer, IPersistentCookieContainer
     {
-        private ICookieFileSystemProvider fileSystemProvider = null;
+        protected ICookieFileSystemProvider fileSystemProvider = null;
         protected volatile bool cacheLoaded = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;

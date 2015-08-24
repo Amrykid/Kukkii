@@ -12,7 +12,7 @@ namespace Kukkii.Containers
 {
     public class EncryptedPersistentCookieContainer: PersistentCookieContainer
     {
-        private ICookieDataEncryptionProvider encryptionProvider = null;
+        protected ICookieDataEncryptionProvider encryptionProvider = null;
         private bool containerDisabled = false;
         internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal): base(cookie, filesystem, isLocal)
         {
@@ -38,11 +38,13 @@ namespace Kukkii.Containers
         //    return AddCookiePacketToCache(cookie);
         //}
 
-        public override Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
+        public override async Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
+            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
 
-            return _InternalGetObject(key).ContinueWith<T>(task =>
+            await InitializeCacheIfNotDoneAlreadyAsync(base.fileSystemProvider);
+
+            return await _InternalGetObject(key).ContinueWith<T>(task =>
             {
                 //if the result was null, call the creation task.
                 //otherwise, remove the object from the cache
@@ -69,9 +71,13 @@ namespace Kukkii.Containers
             });
         }
 
-        public override Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
+        public override async Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            return _InternalGetObject(key).ContinueWith(x =>
+            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
+
+            await InitializeCacheIfNotDoneAlreadyAsync(base.fileSystemProvider);
+
+            return await _InternalGetObject(key).ContinueWith(x =>
                 {
                     if (x.Result != null)
                     {
