@@ -129,8 +129,6 @@
     <Compile Include="Core\ICookieFileSystemProvider.cs" />
     <Compile Include="Core\IDataRoamingPersistantCookieContainer.cs" />
     <Compile Include="Core\IPersistentCookieContainer.cs" />
-    <Compile Include="External\ConcurrentQueue.cs" />
-    <Compile Include="External\IProducerConsumerCollection.cs" />
     <Compile Include="Implementations\DPAPIDataEncryptionProvider.cs" />
     <Compile Include="Implementations\UniversalDataEncryptionProvider.cs" />
     <Compile Include="Implementations\UniversalFileSystemProvider.cs" />

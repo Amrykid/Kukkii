@@ -7,7 +7,6 @@ using System.IO;
 using Windows.Storage;
 using Windows.Security.Cryptography.DataProtection;
 using Windows.Storage.Streams;
-using Windows.Storage;
 using Windows.Storage.Provider;
 using System.Runtime.InteropServices.WindowsRuntime;
 
