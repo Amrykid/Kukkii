@@ -71,9 +71,7 @@ namespace Kukkii.UniversalApps
 
             var stream = await file.OpenStreamForWriteAsync();
 
-            var buffer = data;
-
-            await stream.WriteAsync(buffer, 0, buffer.Length);
+            await stream.WriteAsync(data, 0, data.Length);
 
             await stream.FlushAsync();
 
