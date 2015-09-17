@@ -72,6 +72,6 @@ namespace Kukkii
         /// </summary>
         public static IPersistentCookieContainer Device { get; private set; }
         public static IDataRoamingPersistentCookieContainer Roaming { get; private set; }
-        public static ICookieContainer Secure { get; private set; }
+        public static IPersistentCookieContainer Secure { get; private set; }
     }
 }
