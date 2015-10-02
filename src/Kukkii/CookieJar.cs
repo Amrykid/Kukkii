@@ -27,12 +27,19 @@ namespace Kukkii
             {
                 if (threadRunner != null) return;
 
-                threadRunner = new CookieMonster();
-                InMemory = new BasicCookieContainer(threadRunner);
-                Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
-                Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.RoamingDataProvider, false);
-                Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
-                IsInitialized = true;
+                try
+                {
+                    threadRunner = new CookieMonster();
+                    InMemory = new BasicCookieContainer(threadRunner);
+                    Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
+                    Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.RoamingDataProvider, false);
+                    Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
+                    IsInitialized = true;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred.", ex);
+                }
             }
         }
 
