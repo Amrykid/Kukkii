@@ -16,12 +16,15 @@ namespace Kukkii.Containers
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
         protected bool providerIsLocal = false;
+        private System.Threading.SemaphoreSlim initializeLock = null;
         internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal)
             : base(cookie)
         {
             fileSystemProvider = filesystem;
 
             providerIsLocal = isLocal;
+
+            initializeLock = new System.Threading.SemaphoreSlim(1);
 
             serializer = new JsonSerializer();
             serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
@@ -36,18 +39,23 @@ namespace Kukkii.Containers
 
         protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
         {
-            if (cacheLoaded) return;
+            await initializeLock.WaitAsync();
 
-            //load cache from disk
-
-            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
-
-            if (data != null)
+            if (!cacheLoaded)
             {
-                LoadCacheFromData(data);
+                //load cache from disk
 
+                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
+
+                if (data != null)
+                {
+                    LoadCacheFromData(data);
+
+                }
+                cacheLoaded = true;
             }
-            cacheLoaded = true;
+
+            initializeLock.Release();
         }
 
         protected void LoadCacheFromData(byte[] data)
