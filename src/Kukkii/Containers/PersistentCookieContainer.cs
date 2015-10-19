@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.ExceptionServices;
 
 namespace Kukkii.Containers
 {
@@ -52,7 +53,7 @@ namespace Kukkii.Containers
                     LoadCacheFromData(data);
 
                 }
-                cacheLoaded = true;
+                cacheLoaded = Cache != null;
             }
 
             initializeLock.Release();
@@ -60,16 +61,24 @@ namespace Kukkii.Containers
 
         protected void LoadCacheFromData(byte[] data)
         {
-            using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
+            try
             {
-                using (JsonTextReader jtr = new JsonTextReader(sr))
+                using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
                 {
-                    lock (Cache)
+                    using (JsonTextReader jtr = new JsonTextReader(sr))
                     {
-                        Cache = serializer.Deserialize<List<CookieDataPacket<object>>>(jtr);
+                        lock (Cache)
+                        {
+                            Cache = serializer.Deserialize<List<CookieDataPacket<object>>>(jtr);
+                        }
                     }
-                }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                var exceptionInfo = ExceptionDispatchInfo.Capture(ex);
+                exceptionInfo.Throw();
             }
         }
 
