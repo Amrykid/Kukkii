@@ -10,11 +10,11 @@ using Newtonsoft.Json;
 
 namespace Kukkii.Containers
 {
-    public class EncryptedPersistentCookieContainer: PersistentCookieContainer
+    public class EncryptedPersistentCookieContainer : PersistentCookieContainer
     {
         protected ICookieDataEncryptionProvider encryptionProvider = null;
         private bool containerDisabled = false;
-        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal): base(cookie, filesystem, isLocal)
+        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal) : base(cookie, filesystem, isLocal)
         {
             contextInfo = "encrypted_persistent_cache";
 
@@ -109,18 +109,34 @@ namespace Kukkii.Containers
 
             //load cache from disk
 
-            var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, base.providerIsLocal);
 
-            if (data != null)
+            try
             {
-                data = encryptionProvider.DecryptData(data);
+                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, base.providerIsLocal);
 
-                var jsonStr = System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length);
+                if (data != null)
+                {
+                    data = encryptionProvider.DecryptData(data);
 
-                Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(jsonStr);
+                    var jsonStr = System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length);
+
+                    Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(jsonStr);
+
+                    cacheLoaded = true;
+                }
             }
-
-            cacheLoaded = true;
+            catch (JsonException ex)
+            {
+                throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+            }
+            catch (Exception ex)
+            {
+                switch(ex.HResult)
+                {
+                    case -2146881269: //corrupted encrypted file data
+                        throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+                }
+            }
         }
 
         public override Task FlushAsync()

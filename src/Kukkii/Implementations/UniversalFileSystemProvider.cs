@@ -31,6 +31,21 @@ namespace Kukkii.UniversalApps
             return await folder.CreateFolderAsync(applicationName);
         }
 
+        public async Task DeleteFileAsync(string applicationName, string contextInfo, bool providerIsLocal)
+        {
+            var folder = await CreateAndReturnDataDirectoryAsync(applicationName, providerIsLocal);
+            try
+            {
+                var file = await folder.GetFileAsync(contextInfo + ".json");
+
+                await file.DeleteAsync();
+            }
+            catch (Exception)
+            {
+               
+            }
+        }
+
         public async Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName, isLocal);

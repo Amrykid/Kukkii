@@ -44,16 +44,23 @@ namespace Kukkii.Containers
 
             if (!cacheLoaded)
             {
-                //load cache from disk
-
-                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
-
-                if (data != null)
+                try
                 {
-                    LoadCacheFromData(data);
+                    //load cache from disk
 
+                    var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
+
+                    if (data != null)
+                    {
+                        LoadCacheFromData(data);
+
+                    }
+                    cacheLoaded = true;
                 }
-                cacheLoaded = Cache != null;
+                catch (JsonException ex)
+                {
+                    throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+                }
             }
 
             initializeLock.Release();
@@ -191,18 +198,30 @@ namespace Kukkii.Containers
         {
             if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
 
+            await RegenerateCacheAsync();
+
+            if (CacheReloaded != null)
+                CacheReloaded(this, new CookieCacheReloadedEventArgs());
+        }
+
+        public async Task RegenerateCacheAsync()
+        {
             if (reloadingTask.Task.IsCompleted)
                 reloadingTask = new TaskCompletionSource<object>();
 
             await CookieMonster.QueueWork(() => null); //wait for the queue to empty
 
+            Cache.Clear();
             cacheLoaded = false;
+
+            initializeLock.Dispose();
+            initializeLock = new System.Threading.SemaphoreSlim(1);
+
+            await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
+
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             reloadingTask.TrySetResult(0);
-
-            if (CacheReloaded != null)
-                CacheReloaded(this, new CookieCacheReloadedEventArgs());
         }
 
         public bool IsCacheLoaded

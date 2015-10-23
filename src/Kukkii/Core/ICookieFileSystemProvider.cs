@@ -13,5 +13,6 @@ namespace Kukkii.Core
 
         Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal);
         Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal);
+        Task DeleteFileAsync(string applicationName, string contextInfo, bool providerIsLocal);
     }
 }

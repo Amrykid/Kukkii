@@ -113,6 +113,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheCannotBeLoadedException.cs" />
     <Compile Include="Containers\BasicCookieContainer.cs" />
     <Compile Include="Containers\DataRoamingPersistentCookieContainer.cs" />
     <Compile Include="Containers\EncryptedPersistentCookieContainer.cs" />

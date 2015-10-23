@@ -18,6 +18,11 @@ namespace Kukkii.Mock
             Data = System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
         }
 
+        public Task DeleteFileAsync(string applicationName, string contextInfo, bool providerIsLocal)
+        {
+            return Task.FromResult<object>(null);
+        }
+
         public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
         {
             return Task.FromResult(Data);
