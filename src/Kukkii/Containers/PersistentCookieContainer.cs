@@ -54,7 +54,7 @@ namespace Kukkii.Containers
                     {
                         LoadCacheFromData(data);
 
-                    }
+                    } 
                     cacheLoaded = true;
                 }
                 catch (JsonException ex)
