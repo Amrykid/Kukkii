@@ -54,11 +54,12 @@ namespace Kukkii.Containers
                     {
                         LoadCacheFromData(data);
 
-                    } 
+                    }
                     cacheLoaded = true;
                 }
                 catch (JsonException ex)
                 {
+                    initializeLock.Release();
                     throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
                 }
             }
