@@ -32,7 +32,7 @@ namespace Kukkii.Containers
             serializer.PreserveReferencesHandling = PreserveReferencesHandling.All;
             serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
             serializer.MaxDepth = 2048;
-            serializer.TypeNameHandling = TypeNameHandling.All;
+            serializer.TypeNameHandling = TypeNameHandling.Auto;
             serializer.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
 
             reloadingTask.TrySetResult(0); //default status
