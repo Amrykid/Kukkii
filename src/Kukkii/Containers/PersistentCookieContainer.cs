@@ -48,7 +48,7 @@ namespace Kukkii.Containers
                 {
                     //load cache from disk
 
-                    var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
+                    var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
 
                     if (data != null)
                     {
@@ -187,7 +187,7 @@ namespace Kukkii.Containers
         {
             return CookieMonster.QueueWork(() =>
             {
-                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data, providerIsLocal).Wait();
+                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data).Wait();
 
                 return true;
             });
@@ -218,7 +218,7 @@ namespace Kukkii.Containers
             initializeLock.Dispose();
             initializeLock = new System.Threading.SemaphoreSlim(1);
 
-            await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo, providerIsLocal);
+            await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo);
 
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 

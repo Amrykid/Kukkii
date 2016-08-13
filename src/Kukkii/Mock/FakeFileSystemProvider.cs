@@ -18,17 +18,17 @@ namespace Kukkii.Mock
             Data = System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.None));
         }
 
-        public Task DeleteFileAsync(string applicationName, string contextInfo, bool providerIsLocal)
+        public Task DeleteFileAsync(string applicationName, string contextInfo)
         {
             return Task.FromResult<object>(null);
         }
 
-        public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
+        public System.Threading.Tasks.Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
         {
             return Task.FromResult(Data);
         }
 
-        public System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal)
+        public System.Threading.Tasks.Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
         {
             Data = data;
             return Task.Delay(0);

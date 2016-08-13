@@ -112,7 +112,7 @@ namespace Kukkii.Containers
 
             try
             {
-                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo, base.providerIsLocal);
+                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
 
                 if (data != null)
                 {
