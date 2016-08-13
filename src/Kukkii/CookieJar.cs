@@ -31,9 +31,10 @@ namespace Kukkii
                 {
                     threadRunner = new CookieMonster();
                     InMemory = new BasicCookieContainer(threadRunner);
-                    Device = new PersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, true);
-                    Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.RoamingDataProvider, false);
-                    Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.FileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
+                    Device = new PersistentCookieContainer(threadRunner, CookieRegistration.LocalFileSystemProvider, true);
+                    DeviceCache = new PersistentCookieContainer(threadRunner, CookieRegistration.LocalCacheFileSystemProvider, true);
+                    Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.RoamingFileSystemProvider, CookieRegistration.RoamingDataProvider, false);
+                    Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.LocalFileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
                     IsInitialized = true;
                 }
                 catch (Exception ex)
@@ -78,6 +79,7 @@ namespace Kukkii
         /// A cookie container that can save and load objects on physical media.
         /// </summary>
         public static IPersistentCookieContainer Device { get; private set; }
+        public static IPersistentCookieContainer DeviceCache { get; private set; }
         public static IDataRoamingPersistentCookieContainer Roaming { get; private set; }
         public static IPersistentCookieContainer Secure { get; private set; }
     }

@@ -12,28 +12,33 @@ namespace Kukkii.UniversalApps
 {
     public class UniversalFileSystemProvider : Kukkii.Core.ICookieFileSystemProvider
     {
-        public UniversalFileSystemProvider()
+        private StorageFolder rootFolder = null;
+        internal UniversalFileSystemProvider(bool isLocal = false)
         {
-            
+            rootFolder = isLocal ? Windows.Storage.ApplicationData.Current.LocalFolder : Windows.Storage.ApplicationData.Current.RoamingFolder;
         }
 
-        private static async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName, bool isLocal)
+        internal UniversalFileSystemProvider(StorageFolder baseFolder)
         {
-            StorageFolder folder = isLocal ? Windows.Storage.ApplicationData.Current.LocalFolder : Windows.Storage.ApplicationData.Current.RoamingFolder;
+            rootFolder = baseFolder;
+        }
+
+        private async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName)
+        {
             try
             {
-                return await folder.GetFolderAsync(applicationName);
+                return await rootFolder.GetFolderAsync(applicationName);
             }
             catch (Exception)
             {
             }
 
-            return await folder.CreateFolderAsync(applicationName);
+            return await rootFolder.CreateFolderAsync(applicationName);
         }
 
-        public async Task DeleteFileAsync(string applicationName, string contextInfo, bool providerIsLocal)
+        public async Task DeleteFileAsync(string applicationName, string contextInfo)
         {
-            var folder = await CreateAndReturnDataDirectoryAsync(applicationName, providerIsLocal);
+            var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
             try
             {
                 var file = await folder.GetFileAsync(contextInfo + ".json");
@@ -46,9 +51,9 @@ namespace Kukkii.UniversalApps
             }
         }
 
-        public async Task<byte[]> ReadFileAsync(string applicationName, string contextInfo, bool isLocal)
+        public async Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
         {
-            var folder = await CreateAndReturnDataDirectoryAsync(applicationName, isLocal);
+            var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
             try
             {
                 var file = await folder.GetFileAsync(contextInfo + ".json");
@@ -71,9 +76,9 @@ namespace Kukkii.UniversalApps
             }
         }
 
-        public async Task SaveFileAsync(string applicationName, string contextInfo, byte[] data, bool isLocal)
+        public async Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
         {
-            var folder = await CreateAndReturnDataDirectoryAsync(applicationName, isLocal);
+            var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
             StorageFile file = null;
 
             try

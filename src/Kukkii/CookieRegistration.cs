@@ -18,15 +18,29 @@ namespace Kukkii
 
         internal static Type DefaultCacheType { get { return typeof(List<CookieDataPacket<object>>); } }
 
-        private static ICookieFileSystemProvider fileSystemProvider = new UniversalApps.UniversalFileSystemProvider();
+        private static ICookieFileSystemProvider localFileSystemProvider = new UniversalApps.UniversalFileSystemProvider(Windows.Storage.ApplicationData.Current.LocalFolder);
+        private static ICookieFileSystemProvider localCacheFileSystemProvider = new UniversalApps.UniversalFileSystemProvider(Windows.Storage.ApplicationData.Current.LocalCacheFolder);
+        private static ICookieFileSystemProvider roamingFileSystemProvider = new UniversalApps.UniversalFileSystemProvider(Windows.Storage.ApplicationData.Current.RoamingFolder);
         private static ICookieDataEncryptionProvider dataEncryptionProvider = new UniversalApps.UniversalDataEncryptionProvider();
         private static ICookieDataRoamingProvider roamingProvider = new UniversalApps.UniversalRoamingDataProvider();
         private static bool initialized = false;
 
-        public static ICookieFileSystemProvider FileSystemProvider
+        public static ICookieFileSystemProvider LocalFileSystemProvider
         {
-            get { return fileSystemProvider ?? new FakeFileSystemProvider(); }
-            set { CheckForInitialization(); fileSystemProvider = value; }
+            get { return localFileSystemProvider ?? new FakeFileSystemProvider(); }
+            set { CheckForInitialization(); localFileSystemProvider = value; }
+        }
+
+        public static ICookieFileSystemProvider LocalCacheFileSystemProvider
+        {
+            get { return localCacheFileSystemProvider ?? new FakeFileSystemProvider(); }
+            set { CheckForInitialization(); localCacheFileSystemProvider = value; }
+        }
+
+        public static ICookieFileSystemProvider RoamingFileSystemProvider
+        {
+            get { return roamingFileSystemProvider ?? new FakeFileSystemProvider(); }
+            set { CheckForInitialization(); roamingFileSystemProvider = value; }
         }
 
         public static ICookieDataEncryptionProvider DataEncryptionProvider
