@@ -35,15 +35,8 @@ namespace Kukkii.Containers
                 {
                     //if the result was null, call the creation task.
                     //otherwise, remove the object from the cache
-
-                    if (task.Result == null)
-                    {
-                        if (creationFunction != null)
-                            return creationFunction(); //call the creation function to get a replacement item.
-                        else
-                            return default(T); //nothing else we can do.
-                    }
-                    else
+                    var dataPacket = task.Result as CookieDataPacket<object>;
+                    if (dataPacket != null ? dataPacket.Object != null : false)
                     {
                         lock (Cache)
                         {
@@ -52,6 +45,13 @@ namespace Kukkii.Containers
                         }
 
                         return (T)((CookieDataPacket<object>)task.Result).Object; //return the unwrapped item/object.
+                    }
+                    else
+                    {
+                        if (creationFunction != null)
+                            return creationFunction(); //call the creation function to get a replacement item.
+                        else
+                            return default(T); //nothing else we can do.
                     }
                 });
         }
@@ -79,7 +79,8 @@ namespace Kukkii.Containers
 
             return _InternalGetObject(key).ContinueWith(x =>
             {
-                if (x.Result != null)
+                var dataPacket = x.Result as CookieDataPacket<object>;
+                if (dataPacket != null ? dataPacket.Object != null : false)
                 {
                     return (T)((CookieDataPacket<object>)x.Result).Object;
                 }
