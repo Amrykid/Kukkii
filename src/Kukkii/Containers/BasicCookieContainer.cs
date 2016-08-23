@@ -226,14 +226,29 @@ namespace Kukkii.Containers
 
         public async virtual Task UpdateObjectAsync<T>(string key, T item)
         {
-            await GetObjectAsync<T>(key);
-
             if (!await ContainsObjectAsync(key))
             {
                 await InsertObjectAsync<T>(key, item);
             }
             else
-                throw new Exception();
+            {
+                await CookieMonster.QueueWork(() =>
+                {
+                    lock (Cache)
+                    {
+                        //remove the item from the cache
+
+                        var oldItem = Cache.First(x => x.Key == key);
+                        var index = Cache.IndexOf(oldItem);
+
+                        CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, oldItem.RequestedExpirationTime);
+
+                        Cache[index] = cookie;
+                    }
+
+                    return null;
+                });
+            }
         }
 
 
