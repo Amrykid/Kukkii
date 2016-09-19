@@ -1,5 +1,5 @@
 ## Kukkii
-Kukkii (Japanese for *Cookie*) is a simple, asynchronous Key-Value object system inspired by memcached and [Akavache](http://github.com/Akavache/Akavache) for .NET (Desktop, WP8 and WinRT). The aim is to create something relatively simple, small and easy to use.
+Kukkii (Japanese for *Cookie*) is a simple, asynchronous Key-Value object system inspired by memcached and [Akavache](http://github.com/Akavache/Akavache) for UWP. The aim is to create something relatively simple, small and easy to use.
 
 ### Why Kukkii?
 I created Kukkii out of laziness, really. I was using Akavache for a cross-platform .NET project (WPF and WP8) and I ran into problems because I was using the deprecated Akavache filesystem drivers. Instead of switching 
