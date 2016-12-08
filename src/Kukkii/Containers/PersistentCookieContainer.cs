@@ -18,8 +18,8 @@ namespace Kukkii.Containers
         private JsonSerializer serializer = null;
         protected bool providerIsLocal = false;
         private System.Threading.SemaphoreSlim initializeLock = null;
-        internal PersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, bool isLocal)
-            : base(cookie)
+        internal PersistentCookieContainer(ICookieFileSystemProvider filesystem, bool isLocal)
+            : base()
         {
             fileSystemProvider = filesystem;
 
@@ -52,7 +52,7 @@ namespace Kukkii.Containers
 
                     if (data != null)
                     {
-                        LoadCacheFromData(data);
+                        await LoadCacheFromDataAsync(data);
 
                     }
                     cacheLoaded = true;
@@ -67,8 +67,10 @@ namespace Kukkii.Containers
             initializeLock.Release();
         }
 
-        protected void LoadCacheFromData(byte[] data)
+        protected async Task LoadCacheFromDataAsync(byte[] data)
         {
+            await CacheLock.WaitAsync();
+
             try
             {
                 using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
@@ -88,6 +90,8 @@ namespace Kukkii.Containers
                 var exceptionInfo = ExceptionDispatchInfo.Capture(ex);
                 exceptionInfo.Throw();
             }
+
+            CacheLock.Release();
         }
 
         public override async Task<bool> ContainsObjectAsync(string key)
@@ -156,8 +160,10 @@ namespace Kukkii.Containers
         /// Saves the current cache to disk.
         /// </summary>
         /// <returns></returns>
-        public override System.Threading.Tasks.Task FlushAsync()
+        public override async System.Threading.Tasks.Task FlushAsync()
         {
+            await CacheLock.WaitAsync();
+
             //save cache to disk
 
             string json = null;
@@ -171,7 +177,9 @@ namespace Kukkii.Containers
                 json = sw.ToString();
             }
 
-            return WriteDataViaFileSystem(System.Text.UTF8Encoding.UTF8.GetBytes(json));
+            await WriteDataViaFileSystemAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json));
+
+            CacheLock.Release();
         }
 
         public override async Task UpdateObjectAsync<T>(string key, T item)
@@ -183,14 +191,9 @@ namespace Kukkii.Containers
             await base.UpdateObjectAsync<T>(key, item);
         }
 
-        protected Task WriteDataViaFileSystem(byte[] data)
+        protected Task WriteDataViaFileSystemAsync(byte[] data)
         {
-            return CookieMonster.QueueWork(() =>
-            {
-                fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data).Wait();
-
-                return true;
-            });
+            return fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data);
         }
 
         private TaskCompletionSource<object> reloadingTask = new TaskCompletionSource<object>();
@@ -210,7 +213,7 @@ namespace Kukkii.Containers
             if (reloadingTask.Task.IsCompleted)
                 reloadingTask = new TaskCompletionSource<object>();
 
-            await CookieMonster.QueueWork(() => null); //wait for the queue to empty
+            await CacheLock.WaitAsync();
 
             Cache.Clear();
             cacheLoaded = false;
@@ -219,6 +222,8 @@ namespace Kukkii.Containers
             initializeLock = new System.Threading.SemaphoreSlim(1);
 
             await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo);
+
+            CacheLock.Release();
 
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 

@@ -123,7 +123,6 @@
     <Compile Include="Core\CookieCacheReloadedEventArgs.cs" />
     <Compile Include="Core\CookieDataPacket.cs" />
     <Compile Include="Core\CookieDataRoamedEventArgs.cs" />
-    <Compile Include="Core\CookieMonster.cs" />
     <Compile Include="Core\ICookieContainer.cs" />
     <Compile Include="Core\ICookieDataEncryptionProvider.cs" />
     <Compile Include="Core\ICookieDataRoamingProvider.cs" />

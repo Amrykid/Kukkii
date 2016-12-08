@@ -14,7 +14,7 @@ namespace Kukkii.Containers
     {
         protected ICookieDataEncryptionProvider encryptionProvider = null;
         private bool containerDisabled = false;
-        internal EncryptedPersistentCookieContainer(CookieMonster cookie, ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal) : base(cookie, filesystem, isLocal)
+        internal EncryptedPersistentCookieContainer(ICookieFileSystemProvider filesystem, ICookieDataEncryptionProvider encryptor, bool isLocal) : base(filesystem, isLocal)
         {
             contextInfo = "encrypted_persistent_cache";
 
@@ -38,60 +38,14 @@ namespace Kukkii.Containers
         //    return AddCookiePacketToCache(cookie);
         //}
 
-        public override async Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
+        public override Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
-
-            await InitializeCacheIfNotDoneAlreadyAsync(base.fileSystemProvider);
-
-            return await _InternalGetObject(key).ContinueWith<T>(task =>
-            {
-                //if the result was null, call the creation task.
-                //otherwise, remove the object from the cache
-
-                if (task.Result == null)
-                {
-                    if (creationFunction != null)
-                        return creationFunction(); //call the creation function to get a replacement item.
-                    else
-                        return default(T); //nothing else we can do.
-                }
-                else
-                {
-                    var cookie = (CookieDataPacket<object>)task.Result;
-
-                    lock (Cache)
-                    {
-                        //remove the item from the cache
-                        Cache.Remove(cookie);
-                    }
-
-                    return (T)cookie.Object; //return the unwrapped item/object.
-                }
-            });
+            return base.GetObjectAsync<T>(key, creationFunction);
         }
 
-        public override async Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
+        public override Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
-
-            await InitializeCacheIfNotDoneAlreadyAsync(base.fileSystemProvider);
-
-            return await _InternalGetObject(key).ContinueWith(x =>
-                {
-                    if (x.Result != null)
-                    {
-                        var cookie = (CookieDataPacket<object>)x.Result;
-                        return (T)cookie.Object;
-                    }
-                    else
-                    {
-                        if (creationFunction != null)
-                            return creationFunction(); //call the creation function to get a replacement item.
-                        else
-                            return default(T);
-                    }
-                });
+            return base.PeekObjectAsync<T>(key, creationFunction);
         }
 
         private T DecryptAndConvertCookieObject<T>(CookieDataPacket<object> cookie)
@@ -106,6 +60,8 @@ namespace Kukkii.Containers
         protected override async Task InitializeCacheIfNotDoneAlreadyAsync(Core.ICookieFileSystemProvider filesystem)
         {
             if (cacheLoaded) return;
+
+            await CacheLock.WaitAsync();
 
             //load cache from disk
 
@@ -137,11 +93,13 @@ namespace Kukkii.Containers
                         throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
                 }
             }
+
+            CacheLock.Release();
         }
 
         public override Task FlushAsync()
         {
-            return WriteDataViaFileSystem(encryptionProvider.EncryptData(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache))));
+            return WriteDataViaFileSystemAsync(encryptionProvider.EncryptData(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Cache))));
         }
     }
 }

@@ -13,8 +13,6 @@ namespace Kukkii
     /// </summary>
     public static class CookieJar
     {
-        private static CookieMonster threadRunner = null;
-
         static CookieJar()
         {
             Initialize();
@@ -25,16 +23,13 @@ namespace Kukkii
             //initialize the cookie jar!
             if (!IsInitialized)
             {
-                if (threadRunner != null) return;
-
                 try
                 {
-                    threadRunner = new CookieMonster();
-                    InMemory = new BasicCookieContainer(threadRunner);
-                    Device = new PersistentCookieContainer(threadRunner, CookieRegistration.LocalFileSystemProvider, true);
-                    DeviceCache = new PersistentCookieContainer(threadRunner, CookieRegistration.LocalCacheFileSystemProvider, true);
-                    Roaming = new DataRoamingPersistentCookieContainer(threadRunner, CookieRegistration.RoamingFileSystemProvider, CookieRegistration.RoamingDataProvider, false);
-                    Secure = new EncryptedPersistentCookieContainer(threadRunner, CookieRegistration.LocalFileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
+                    InMemory = new BasicCookieContainer();
+                    Device = new PersistentCookieContainer(CookieRegistration.LocalFileSystemProvider, true);
+                    DeviceCache = new PersistentCookieContainer(CookieRegistration.LocalCacheFileSystemProvider, true);
+                    Roaming = new DataRoamingPersistentCookieContainer(CookieRegistration.RoamingFileSystemProvider, CookieRegistration.RoamingDataProvider, false);
+                    Secure = new EncryptedPersistentCookieContainer(CookieRegistration.LocalFileSystemProvider, CookieRegistration.DataEncryptionProvider, true);
                     IsInitialized = true;
                 }
                 catch (Exception ex)
@@ -52,13 +47,10 @@ namespace Kukkii
                 {
                     await Task.WhenAll(Device.FlushAsync(), Roaming.FlushAsync());
                 }
-                await threadRunner.DeinitializeAsync();
 
                 InMemory = null;
                 Device = null;
                 Roaming = null;
-
-                threadRunner = null;
 
                 IsInitialized = false;
             }

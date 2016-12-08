@@ -10,8 +10,8 @@ namespace Kukkii.Containers
     {
         private DataRoamingPersistentCookieContainerRemote dataRemote = null;
 
-        public DataRoamingPersistentCookieContainer(CookieMonster threadRunner, ICookieFileSystemProvider cookieFileSystemProvider, ICookieDataRoamingProvider cookieRoamingProvider, bool isLocal = false)
-            : base(threadRunner, cookieFileSystemProvider, isLocal)
+        public DataRoamingPersistentCookieContainer(ICookieFileSystemProvider cookieFileSystemProvider, ICookieDataRoamingProvider cookieRoamingProvider, bool isLocal = false)
+            : base(cookieFileSystemProvider, isLocal)
         {
             dataRemote = new DataRoamingPersistentCookieContainerRemote();
 
