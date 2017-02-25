@@ -17,7 +17,7 @@ namespace Kukkii.Containers
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
         protected bool providerIsLocal = false;
-        private System.Threading.SemaphoreSlim initializeLock = null;
+        protected System.Threading.SemaphoreSlim initializeLock = null;
         internal PersistentCookieContainer(ICookieFileSystemProvider filesystem, bool isLocal)
             : base()
         {
@@ -34,43 +34,46 @@ namespace Kukkii.Containers
             serializer.MaxDepth = 2048;
             serializer.TypeNameHandling = TypeNameHandling.Auto;
             serializer.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
-
-            reloadingTask.TrySetResult(0); //default status
         }
 
         protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
         {
-            await initializeLock.WaitAsync();
-
             if (!cacheLoaded)
             {
-                try
+                await CacheLock.WaitAsync();
+                await initializeLock.WaitAsync();
+
+                if (!cacheLoaded) //after waiting for its turn, if the cache /still/ isn't loaded, try again.
                 {
-                    //load cache from disk
-
-                    var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
-
-                    if (data != null)
+                    try
                     {
-                        await LoadCacheFromDataAsync(data);
+                        //load cache from disk
 
+                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+
+                        if (data != null)
+                        {
+                            LoadCacheFromData(data);
+                        }
+
+                        cacheLoaded = true;
                     }
-                    cacheLoaded = true;
-                }
-                catch (JsonException ex)
-                {
-                    initializeLock.Release();
-                    throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
-                }
-            }
+                    catch (Exception ex)
+                    {
+                        initializeLock.Release();
+                        CacheLock.Release();
 
-            initializeLock.Release();
+                        throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+                    }
+                }
+
+                initializeLock.Release();
+                CacheLock.Release();
+            }
         }
 
-        protected async Task LoadCacheFromDataAsync(byte[] data)
+        protected void LoadCacheFromData(byte[] data)
         {
-            await CacheLock.WaitAsync();
-
             try
             {
                 using (StringReader sr = new StringReader(System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length)))
@@ -90,14 +93,10 @@ namespace Kukkii.Containers
                 var exceptionInfo = ExceptionDispatchInfo.Capture(ex);
                 exceptionInfo.Throw();
             }
-
-            CacheLock.Release();
         }
 
         public override async Task<bool> ContainsObjectAsync(string key)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.ContainsObjectAsync(key);
@@ -105,8 +104,6 @@ namespace Kukkii.Containers
 
         public override async Task<int> CountObjectsAsync(string key)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.CountObjectsAsync(key);
@@ -114,8 +111,6 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.GetObjectAsync<T>(key, creationFunction);
@@ -123,8 +118,6 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.GetObjectsAsync<T>(key);
@@ -132,8 +125,6 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.PeekObjectAsync<T>(key, creationFunction);
@@ -141,8 +132,6 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.InsertObjectAsync(key, item, expirationTime);
@@ -150,8 +139,6 @@ namespace Kukkii.Containers
 
         public override async System.Threading.Tasks.Task CleanUpAsync()
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.CleanUpAsync();
@@ -184,8 +171,6 @@ namespace Kukkii.Containers
 
         public override async Task UpdateObjectAsync<T>(string key, T item)
         {
-            await reloadingTask.Task;
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             await base.UpdateObjectAsync<T>(key, item);
@@ -196,13 +181,18 @@ namespace Kukkii.Containers
             return fileSystemProvider.SaveFileAsync(CookieJar.ApplicationName, contextInfo, data);
         }
 
-        private TaskCompletionSource<object> reloadingTask = new TaskCompletionSource<object>();
-
         public async Task ReloadCacheAsync()
         {
             if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
 
-            await RegenerateCacheAsync();
+            await CacheLock.WaitAsync();
+
+            Cache = null;
+            cacheLoaded = false;
+
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            CacheLock.Release();
 
             if (CacheReloaded != null)
                 CacheReloaded(this, new CookieCacheReloadedEventArgs());
@@ -210,8 +200,8 @@ namespace Kukkii.Containers
 
         public async Task RegenerateCacheAsync()
         {
-            if (reloadingTask.Task.IsCompleted)
-                reloadingTask = new TaskCompletionSource<object>();
+            CacheLock.Dispose();
+            CacheLock = new System.Threading.SemaphoreSlim(1);
 
             await CacheLock.WaitAsync();
 
@@ -226,8 +216,6 @@ namespace Kukkii.Containers
             CacheLock.Release();
 
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
-
-            reloadingTask.TrySetResult(0);
         }
 
         public bool IsCacheLoaded
@@ -238,9 +226,6 @@ namespace Kukkii.Containers
 
         public async Task InitializeAsync()
         {
-            if (!reloadingTask.Task.Wait(1))
-                throw new InvalidOperationException();
-
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
         }
 

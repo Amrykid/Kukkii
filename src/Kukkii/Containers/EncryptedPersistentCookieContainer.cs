@@ -59,42 +59,52 @@ namespace Kukkii.Containers
 
         protected override async Task InitializeCacheIfNotDoneAlreadyAsync(Core.ICookieFileSystemProvider filesystem)
         {
-            if (cacheLoaded) return;
-
-            await CacheLock.WaitAsync();
-
-            //load cache from disk
-
-
-            try
+            if (!cacheLoaded)
             {
-                var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+                await CacheLock.WaitAsync();
+                await initializeLock.WaitAsync();
 
-                if (data != null)
+                if (!cacheLoaded) //after waiting for its turn, if the cache /still/ isn't loaded, try again.
                 {
-                    data = encryptionProvider.DecryptData(data);
+                    try
+                    {
+                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
 
-                    var jsonStr = System.Text.UTF8Encoding.UTF8.GetString(data, 0, data.Length);
+                        if (data != null)
+                        {
+                            data = encryptionProvider.DecryptData(data);
 
-                    Cache = JsonConvert.DeserializeObject<IList<CookieDataPacket<object>>>(jsonStr);
+                            if (data != null)
+                            {
+                                LoadCacheFromData(data);
+                            }
 
-                    cacheLoaded = true;
-                }
-            }
-            catch (JsonException ex)
-            {
-                throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
-            }
-            catch (Exception ex)
-            {
-                switch(ex.HResult)
-                {
-                    case -2146881269: //corrupted encrypted file data
+                            cacheLoaded = true;
+                        }
+                    }
+                    catch (JsonException ex)
+                    {
+                        initializeLock.Release();
+                        CacheLock.Release();
+
                         throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        initializeLock.Release();
+                        CacheLock.Release();
+
+                        switch (ex.HResult)
+                        {
+                            case -2146881269: //corrupted encrypted file data
+                                throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
+                        }
+                    }
+
+                    CacheLock.Release();
+                    initializeLock.Release();
                 }
             }
-
-            CacheLock.Release();
         }
 
         public override Task FlushAsync()
