@@ -14,6 +14,7 @@ namespace Kukkii.Containers
     {
         protected ICookieFileSystemProvider fileSystemProvider = null;
         protected volatile bool cacheLoaded = false;
+        private bool containerBroken = false;
         protected string contextInfo = "persistent_cache";
         private JsonSerializer serializer = null;
         protected bool providerIsLocal = false;
@@ -38,12 +39,14 @@ namespace Kukkii.Containers
 
         protected virtual async Task InitializeCacheIfNotDoneAlreadyAsync(ICookieFileSystemProvider filesystem)
         {
+            if (containerBroken) throw new CacheCannotBeLoadedException("Container broken. It must be regenerated.");
+
             if (!cacheLoaded)
             {
                 await CacheLock.WaitAsync();
                 await initializeLock.WaitAsync();
 
-                if (!cacheLoaded) //after waiting for its turn, if the cache /still/ isn't loaded, try again.
+                if (!cacheLoaded && !containerBroken) //after waiting for its turn, if the cache /still/ isn't loaded, try again.
                 {
                     try
                     {
@@ -60,12 +63,16 @@ namespace Kukkii.Containers
                     }
                     catch (Exception ex)
                     {
+                        containerBroken = true;
+
                         initializeLock.Release();
                         CacheLock.Release();
 
                         throw new CacheCannotBeLoadedException("Unable to load cache.", ex);
                     }
                 }
+
+                if (containerBroken) throw new CacheCannotBeLoadedException("Container broken. It must be regenerated.");
 
                 initializeLock.Release();
                 CacheLock.Release();
@@ -93,6 +100,13 @@ namespace Kukkii.Containers
                 var exceptionInfo = ExceptionDispatchInfo.Capture(ex);
                 exceptionInfo.Throw();
             }
+        }
+
+        public override async Task PushObjectAsync<T>(string key, T item, int expirationTime = -1)
+        {
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+
+            await base.PushObjectAsync<T>(key, item, expirationTime);
         }
 
         public override async Task<bool> ContainsObjectAsync(string key)
@@ -130,13 +144,6 @@ namespace Kukkii.Containers
             return await base.PeekObjectAsync<T>(key, creationFunction);
         }
 
-        public override async System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
-        {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
-
-            await base.InsertObjectAsync(key, item, expirationTime);
-        }
-
         public override async System.Threading.Tasks.Task CleanUpAsync()
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
@@ -167,13 +174,6 @@ namespace Kukkii.Containers
             await WriteDataViaFileSystemAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json));
 
             CacheLock.Release();
-        }
-
-        public override async Task UpdateObjectAsync<T>(string key, T item)
-        {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
-
-            await base.UpdateObjectAsync<T>(key, item);
         }
 
         protected Task WriteDataViaFileSystemAsync(byte[] data)
@@ -207,6 +207,7 @@ namespace Kukkii.Containers
 
             Cache.Clear();
             cacheLoaded = false;
+            containerBroken = false;
 
             initializeLock.Dispose();
             initializeLock = new System.Threading.SemaphoreSlim(1);

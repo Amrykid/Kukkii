@@ -36,6 +36,7 @@ namespace Kukkii.Containers
 
 
             var dataPacket = Cache.Where(x => x.Key == key)
+                .Where(x => !x.IsExpired())
                 .OrderBy(x => x.InsertionTime)
                 .FirstOrDefault();
 
@@ -93,6 +94,7 @@ namespace Kukkii.Containers
 
 
             var dataPacket = Cache.Where(x => x.Key == key)
+                .Where(x => !x.IsExpired())
                 .OrderBy(x => x.InsertionTime)
                 .FirstOrDefault();
 
@@ -113,25 +115,7 @@ namespace Kukkii.Containers
             return returnValue;
         }
 
-        /// <summary>
-        /// Inserts an object into the container with a key and optional expiration time.
-        /// </summary>
-        /// <param name="key">The key used to store the object.</param>
-        /// <param name="item">The object to store.</param>
-        /// <param name="expirationTime">How long (in milliseconds) should the object be fresh. Use -1 for infinity.</param>
-        /// <returns></returns>
-        public virtual System.Threading.Tasks.Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
-        {
-            //check the parameters
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
-            if (expirationTime < -1) throw new ArgumentOutOfRangeException("expirationTime");
-
-            CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, expirationTime);
-
-            return AddCookiePacketToCache(cookie);
-        }
-
-        protected async Task AddCookiePacketToCache(CookieDataPacket<object> cookie)
+        protected async Task AddCookiePacketToCacheAsync(CookieDataPacket<object> cookie)
         {
             await CacheLock.WaitAsync();
 
@@ -206,16 +190,32 @@ namespace Kukkii.Containers
         }
 
 
-        public async virtual Task UpdateObjectAsync<T>(string key, T item)
+        public virtual async Task<int> CountObjectsAsync(string key)
         {
+            await CacheLock.WaitAsync();
+
+            int returnValue = Cache.Where(x => x.Key == key).Count();
+
+            CacheLock.Release();
+
+            return returnValue;
+        }
+
+        public virtual async Task PushObjectAsync<T>(string key, T item, int expirationTime = -1)
+        {
+            //check the parameters
+            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
+            if (expirationTime < -1) throw new ArgumentOutOfRangeException("expirationTime");
+
             //todo handle race condition.
             if (!await ContainsObjectAsync(key))
             {
-                await InsertObjectAsync<T>(key, item);
+                CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, expirationTime);
+
+                await AddCookiePacketToCacheAsync(cookie);
             }
             else
             {
-
                 await CacheLock.WaitAsync();
 
                 //remove the item from the cache
@@ -230,18 +230,6 @@ namespace Kukkii.Containers
                 CacheLock.Release();
 
             }
-        }
-
-
-        public virtual async Task<int> CountObjectsAsync(string key)
-        {
-            await CacheLock.WaitAsync();
-
-            int returnValue = Cache.Where(x => x.Key == key).Count();
-
-            CacheLock.Release();
-
-            return returnValue;
         }
     }
 }

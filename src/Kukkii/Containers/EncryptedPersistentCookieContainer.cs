@@ -24,20 +24,6 @@ namespace Kukkii.Containers
             encryptionProvider = encryptor;
         }
 
-        //public override Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1)
-        //{
-        //    //check the parameters
-        //    if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
-        //    if (expirationTime < -1) throw new ArgumentOutOfRangeException("expirationTime");
-
-        //    CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, expirationTime);
-
-        //    //cache the cookie packet and encrypt it before adding it to the container cache.
-        //    cookie.Object = encryptionProvider.EncryptData(System.Text.UTF8Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cookie.Object)));
-
-        //    return AddCookiePacketToCache(cookie);
-        //}
-
         public override Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             return base.GetObjectAsync<T>(key, creationFunction);

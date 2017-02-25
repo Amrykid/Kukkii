@@ -32,15 +32,13 @@ namespace Kukkii.Core
         /// <returns></returns>
         Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null);
         /// <summary>
-        /// Inserts an object into the container with a key and optional expiration time.
+        /// Inserts/Updates an object into the container with a key and optional expiration time.
         /// </summary>
-        /// <param name="key">The key used to store the object.</param>
+        /// <param name="key">The key used to store/update the object.</param>
         /// <param name="item">The object to store.</param>
         /// <param name="expirationTime">How long (in milliseconds) should the object be fresh. Use -1 for infinity.</param>
         /// <returns></returns>
-        Task InsertObjectAsync<T>(string key, T item, int expirationTime = -1);
-
-        Task UpdateObjectAsync<T>(string key, T item);
+        Task PushObjectAsync<T>(string key, T item, int expirationTime = -1);
 
         Task<int> CountObjectsAsync(string key);
 
