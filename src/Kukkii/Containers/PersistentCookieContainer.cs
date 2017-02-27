@@ -29,10 +29,10 @@ namespace Kukkii.Containers
             initializeLock = new System.Threading.SemaphoreSlim(1);
 
             serializer = new JsonSerializer();
-            serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+            serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
-            serializer.MaxDepth = 2048;
+            serializer.MaxDepth = 4096;
             serializer.TypeNameHandling = TypeNameHandling.Auto;
             serializer.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
         }
