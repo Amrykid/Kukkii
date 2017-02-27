@@ -30,7 +30,7 @@ namespace Kukkii.Containers
 
             serializer = new JsonSerializer();
             serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-            serializer.PreserveReferencesHandling = PreserveReferencesHandling.All;
+            serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
             serializer.MaxDepth = 2048;
             serializer.TypeNameHandling = TypeNameHandling.Auto;
@@ -116,25 +116,11 @@ namespace Kukkii.Containers
             return await base.ContainsObjectAsync(key);
         }
 
-        public override async Task<int> CountObjectsAsync(string key)
-        {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
-
-            return await base.CountObjectsAsync(key);
-        }
-
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
             await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
 
             return await base.GetObjectAsync<T>(key, creationFunction);
-        }
-
-        public override async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
-        {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
-
-            return await base.GetObjectsAsync<T>(key);
         }
 
         public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)

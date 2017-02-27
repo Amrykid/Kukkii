@@ -22,7 +22,6 @@ namespace Kukkii.Core
         /// <param name="creationFunction">The function to call to provide a replacement item should the key/item not exist.</param>
         /// <returns></returns>
         Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null);
-        Task<IEnumerable<T>> GetObjectsAsync<T>(string key);
         /// <summary>
         /// Returns the object stored using the provided key and not remove it from the container. 
         /// If the object does not exists, the creation function is called to provide a replacement object.
@@ -39,8 +38,6 @@ namespace Kukkii.Core
         /// <param name="expirationTime">How long (in milliseconds) should the object be fresh. Use -1 for infinity.</param>
         /// <returns></returns>
         Task PushObjectAsync<T>(string key, T item, int expirationTime = -1);
-
-        Task<int> CountObjectsAsync(string key);
 
         /// <summary>
         /// Clears out the expired items in the container.

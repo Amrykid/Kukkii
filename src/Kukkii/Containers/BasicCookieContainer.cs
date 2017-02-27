@@ -63,22 +63,6 @@ namespace Kukkii.Containers
             return returnValue;
         }
 
-        public virtual async System.Threading.Tasks.Task<IEnumerable<T>> GetObjectsAsync<T>(string key)
-        {
-            await CacheLock.WaitAsync();
-
-            List<T> objects = new List<T>();
-
-            T item;
-
-            while ((item = await GetObjectAsync<T>(key)) != null)
-                objects.Add(item);
-
-            CacheLock.Release();
-
-            return objects;
-        }
-
         /// <summary>
         /// Returns the object stored using the provided key and not remove it from the container.
         /// </summary>
@@ -187,18 +171,6 @@ namespace Kukkii.Containers
             Cache.Clear();
 
             CacheLock.Release();
-        }
-
-
-        public virtual async Task<int> CountObjectsAsync(string key)
-        {
-            await CacheLock.WaitAsync();
-
-            int returnValue = Cache.Where(x => x.Key == key).Count();
-
-            CacheLock.Release();
-
-            return returnValue;
         }
 
         public virtual async Task PushObjectAsync<T>(string key, T item, int expirationTime = -1)
