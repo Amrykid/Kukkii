@@ -54,7 +54,7 @@ namespace Kukkii.Containers
                 {
                     try
                     {
-                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo).ConfigureAwait(false);
 
                         if (data != null)
                         {

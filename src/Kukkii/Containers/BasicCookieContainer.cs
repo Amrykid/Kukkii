@@ -34,33 +34,42 @@ namespace Kukkii.Containers
 
             T returnValue;
 
-
-            var dataPacket = Cache.Where(x => x.Key == key)
-                .Where(x => !x.IsExpired())
-                .OrderBy(x => x.InsertionTime)
-                .FirstOrDefault();
-
-            if (dataPacket != null ? dataPacket.Object != null : false)
+            try
             {
-                lock (Cache)
+                var dataPacket = Cache.Where(x => x.Key == key)
+                    .Where(x => !x.IsExpired())
+                    .OrderBy(x => x.InsertionTime)
+                    .FirstOrDefault();
+
+                if (dataPacket != null ? dataPacket.Object != null : false)
                 {
-                    //remove the item from the cache
-                    Cache.Remove(dataPacket);
+                    lock (Cache)
+                    {
+                        //remove the item from the cache
+                        Cache.Remove(dataPacket);
+                    }
+
+                    returnValue = (T)(dataPacket.Object); //return the unwrapped item/object.
+                }
+                else
+                {
+                    if (creationFunction != null)
+                        returnValue = creationFunction(); //call the creation function to get a replacement item.
+                    else
+                        returnValue = default(T); //nothing else we can do.
                 }
 
-                returnValue = (T)(dataPacket.Object); //return the unwrapped item/object.
+                return returnValue;
             }
-            else
+            catch (Exception ex)
             {
-                if (creationFunction != null)
-                    returnValue = creationFunction(); //call the creation function to get a replacement item.
-                else
-                    returnValue = default(T); //nothing else we can do.
+                //todo throw a cookie exception
+                throw new Exception("Cache exception", ex);
             }
-
-            CacheLock.Release();
-
-            return returnValue;
+            finally
+            {
+                CacheLock.Release();
+            }
         }
 
         /// <summary>
@@ -72,36 +81,45 @@ namespace Kukkii.Containers
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key contains invalid characters.", "key");
 
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             T returnValue;
 
-
-            var dataPacket = Cache.Where(x => x.Key == key)
-                .Where(x => !x.IsExpired())
-                .OrderBy(x => x.InsertionTime)
-                .FirstOrDefault();
-
-            if (dataPacket != null ? dataPacket.Object != null : false)
+            try
             {
-                returnValue = (T)dataPacket.Object;
-            }
-            else
-            {
-                if (creationFunction != null)
-                    returnValue = creationFunction(); //call the creation function to get a replacement item.
+                var dataPacket = Cache.Where(x => x.Key == key)
+                    .Where(x => !x.IsExpired())
+                    .OrderBy(x => x.InsertionTime)
+                    .FirstOrDefault();
+
+                if (dataPacket != null ? dataPacket.Object != null : false)
+                {
+                    returnValue = (T)dataPacket.Object;
+                }
                 else
-                    returnValue = default(T);
+                {
+                    if (creationFunction != null)
+                        returnValue = creationFunction(); //call the creation function to get a replacement item.
+                    else
+                        returnValue = default(T);
+                }
+
+                return returnValue;
             }
-
-            CacheLock.Release();
-
-            return returnValue;
+            catch (Exception ex)
+            {
+                //todo throw a cookie exception
+                throw new Exception("Cache exception", ex);
+            }
+            finally
+            {
+                CacheLock.Release();
+            }
         }
 
         protected async Task AddCookiePacketToCacheAsync(CookieDataPacket<object> cookie)
         {
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             //adds the item to the cache
             Cache.Add(cookie);
@@ -115,7 +133,10 @@ namespace Kukkii.Containers
             CookieDataPacket<object> cookie = new CookieDataPacket<object>();
             cookie.Key = key;
             cookie.RequestedExpirationTime = expirationTime;
+
+            //todo check if the item is serializable.
             cookie.Object = item;
+
             cookie.InsertionTime = DateTime.Now;
             return cookie;
         }
@@ -126,7 +147,7 @@ namespace Kukkii.Containers
         /// <returns></returns>
         public virtual async System.Threading.Tasks.Task CleanUpAsync()
         {
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             var expiredItems = Cache.Where(x => x.IsExpired()).ToArray(); //Finds all of the expired items.
 
@@ -166,7 +187,7 @@ namespace Kukkii.Containers
         /// <returns></returns>
         public virtual async Task ClearContainerAsync()
         {
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             Cache.Clear();
 
@@ -184,11 +205,11 @@ namespace Kukkii.Containers
             {
                 CookieDataPacket<object> cookie = CreateCookiePacket<T>(key, item, expirationTime);
 
-                await AddCookiePacketToCacheAsync(cookie);
+                await AddCookiePacketToCacheAsync(cookie).ConfigureAwait(false);
             }
             else
             {
-                await CacheLock.WaitAsync();
+                await CacheLock.WaitAsync().ConfigureAwait(false);
 
                 //remove the item from the cache
 

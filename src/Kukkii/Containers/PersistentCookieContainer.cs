@@ -43,8 +43,8 @@ namespace Kukkii.Containers
 
             if (!cacheLoaded)
             {
-                await CacheLock.WaitAsync();
-                await initializeLock.WaitAsync();
+                await CacheLock.WaitAsync().ConfigureAwait(false);
+                await initializeLock.WaitAsync().ConfigureAwait(false);
 
                 if (!cacheLoaded && !containerBroken) //after waiting for its turn, if the cache /still/ isn't loaded, try again.
                 {
@@ -52,7 +52,7 @@ namespace Kukkii.Containers
                     {
                         //load cache from disk
 
-                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo);
+                        var data = await filesystem.ReadFileAsync(CookieJar.ApplicationName, contextInfo).ConfigureAwait(false);
 
                         if (data != null)
                         {
@@ -104,37 +104,37 @@ namespace Kukkii.Containers
 
         public override async Task PushObjectAsync<T>(string key, T item, int expirationTime = -1)
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
-            await base.PushObjectAsync<T>(key, item, expirationTime);
+            await base.PushObjectAsync<T>(key, item, expirationTime).ConfigureAwait(false);
         }
 
         public override async Task<bool> ContainsObjectAsync(string key)
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
-            return await base.ContainsObjectAsync(key);
+            return await base.ContainsObjectAsync(key).ConfigureAwait(false);
         }
 
         public override async System.Threading.Tasks.Task<T> GetObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
-            return await base.GetObjectAsync<T>(key, creationFunction);
+            return await base.GetObjectAsync<T>(key, creationFunction).ConfigureAwait(false);
         }
 
         public override async System.Threading.Tasks.Task<T> PeekObjectAsync<T>(string key, Func<T> creationFunction = null)
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
-            return await base.PeekObjectAsync<T>(key, creationFunction);
+            return await base.PeekObjectAsync<T>(key, creationFunction).ConfigureAwait(false);
         }
 
         public override async System.Threading.Tasks.Task CleanUpAsync()
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
-            await base.CleanUpAsync();
+            await base.CleanUpAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// Saves the current cache to disk.
@@ -142,7 +142,7 @@ namespace Kukkii.Containers
         /// <returns></returns>
         public override async System.Threading.Tasks.Task FlushAsync()
         {
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             //save cache to disk
 
@@ -157,7 +157,7 @@ namespace Kukkii.Containers
                 json = sw.ToString();
             }
 
-            await WriteDataViaFileSystemAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json));
+            await WriteDataViaFileSystemAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json)).ConfigureAwait(false);
 
             CacheLock.Release();
         }
@@ -171,12 +171,12 @@ namespace Kukkii.Containers
         {
             if (!cacheLoaded || fileSystemProvider == null) throw new InvalidOperationException();
 
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             Cache = null;
             cacheLoaded = false;
 
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
 
             CacheLock.Release();
 
@@ -189,7 +189,7 @@ namespace Kukkii.Containers
             CacheLock.Dispose();
             CacheLock = new System.Threading.SemaphoreSlim(1);
 
-            await CacheLock.WaitAsync();
+            await CacheLock.WaitAsync().ConfigureAwait(false);
 
             Cache.Clear();
             cacheLoaded = false;
@@ -198,11 +198,11 @@ namespace Kukkii.Containers
             initializeLock.Dispose();
             initializeLock = new System.Threading.SemaphoreSlim(1);
 
-            await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo);
+            await fileSystemProvider.DeleteFileAsync(CookieJar.ApplicationName, contextInfo).ConfigureAwait(false);
 
             CacheLock.Release();
 
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
         }
 
         public bool IsCacheLoaded
@@ -213,7 +213,7 @@ namespace Kukkii.Containers
 
         public async Task InitializeAsync()
         {
-            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider);
+            await InitializeCacheIfNotDoneAlreadyAsync(fileSystemProvider).ConfigureAwait(false);
         }
 
         public event EventHandler<CookieCacheReloadedEventArgs> CacheReloaded;
