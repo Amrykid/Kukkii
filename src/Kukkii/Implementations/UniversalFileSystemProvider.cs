@@ -25,15 +25,17 @@ namespace Kukkii.UniversalApps
 
         private async Task<StorageFolder> CreateAndReturnDataDirectoryAsync(string applicationName)
         {
-            try
-            {
-                return await rootFolder.GetFolderAsync(applicationName);
-            }
-            catch (Exception)
-            {
-            }
+            var obj = await rootFolder.TryGetItemAsync(applicationName);
 
-            return await rootFolder.CreateFolderAsync(applicationName);
+            if (obj != null)
+            {
+                //obj.IsOfType(StorageItemTypes.Folder))
+                return ((StorageFolder)obj);
+            }
+            else
+            {
+                return await rootFolder.CreateFolderAsync(applicationName);
+            }
         }
 
         public async Task DeleteFileAsync(string applicationName, string contextInfo)
@@ -47,47 +49,44 @@ namespace Kukkii.UniversalApps
             }
             catch (Exception)
             {
-               
+
             }
         }
 
         public async Task<byte[]> ReadFileAsync(string applicationName, string contextInfo)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
-            try
+
+            var obj = await folder.TryGetItemAsync(contextInfo + ".json");
+
+            if (obj != null)
             {
-                var file = await folder.GetFileAsync(contextInfo + ".json");
-
-                var accessStream = await file.OpenReadAsync();
-
-                byte[] data = null;
-
-                using (Stream stream = accessStream.AsStreamForRead((int)accessStream.Size))
+                if (obj.IsOfType(StorageItemTypes.File))
                 {
-                    data = new byte[(int)stream.Length];
-                    await stream.ReadAsync(data, 0, (int)stream.Length);
-                }
+                    var file = ((StorageFile)obj);
 
-                return data;
+                    var accessStream = await file.OpenReadAsync();
+
+                    byte[] data = null;
+
+                    using (Stream stream = accessStream.AsStreamForRead((int)accessStream.Size))
+                    {
+                        data = new byte[(int)stream.Length];
+                        await stream.ReadAsync(data, 0, (int)stream.Length);
+                    }
+
+                    return data;
+                }
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            return null;
+
         }
 
         public async Task SaveFileAsync(string applicationName, string contextInfo, byte[] data)
         {
             var folder = await CreateAndReturnDataDirectoryAsync(applicationName);
-            StorageFile file = null;
-
-            try
-            {
-                file = await folder.GetFileAsync(contextInfo + ".json");
-            }
-            catch (Exception) { }
-            if (file == null)
-                file = await folder.CreateFileAsync(contextInfo + ".json");
+            StorageFile file = await folder.CreateFileAsync(contextInfo + ".json", CreationCollisionOption.OpenIfExists);
 
             var stream = await file.OpenStreamForWriteAsync();
 
